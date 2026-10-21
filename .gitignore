@@ -224,6 +224,10 @@ node_modules/
 .pnp
 .pnp.*
 
+# Keep frontend source modules despite the Python lib/ rule above
+!/frontend/src/lib/
+!/frontend/src/lib/**
+
 # React build output (build/ and dist/ are ignored above)
 .vite/
 dist-ssr/
