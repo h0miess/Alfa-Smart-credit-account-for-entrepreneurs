@@ -1,0 +1,23 @@
+Third-party components used by the frontend prototype
+
+React / React DOM — MIT — https://react.dev/
+Vite — MIT — https://vite.dev/
+@vitejs/plugin-react — MIT — https://github.com/vitejs/vite-plugin-react
+Lucide React icons — ISC — https://lucide.dev/
+Manrope font (bundled via @fontsource/manrope) — SIL Open Font License 1.1 — https://fontsource.org/fonts/manrope
+Prettier (development only) — MIT — https://prettier.io/
+Node.js (build/runtime tooling) — MIT and bundled third-party licenses — https://nodejs.org/
+nginx (Docker static server) — 2-clause BSD — https://nginx.org/
+
+Dependency versions are recorded in frontend/package-lock.json. Upstream license
+texts are distributed with their packages and Docker images.
+
+The project is an educational Alfa-Hack prototype. Company profiles, credit
+products, rates, balances and scoring results are synthetic examples, not real
+bank offers. The Alfa name refers to the supplied case; no official bank assets
+or corporate systems are included. Decorative graphics are implemented in CSS.
+
+Mock integrations: company registry (EGRUL/EGRIP), FNS Transparent Business,
+credit bureau. No external requests are made. Document upload stores metadata
+only. Signature code 1234 and loan disbursement are simulations. There are no
+payments, real signatures, real loans, paid APIs, AI models or external datasets.
