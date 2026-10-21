@@ -1,4 +1,4 @@
-nimport {
+import {
   ArrowRight,
   ArrowUpRight,
   Check,
