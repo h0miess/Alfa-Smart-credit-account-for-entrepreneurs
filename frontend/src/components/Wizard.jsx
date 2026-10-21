@@ -1,3 +1,4 @@
+import { createId } from '../lib/id.js';
 import { useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, Save, UploadCloud } from 'lucide-react';
 import { money, monthlyPayment, products, transition } from '../lib/credit';
@@ -27,7 +28,7 @@ export function DocumentUpload({ documents, onChange }) {
             }
             onChange([
               ...documents,
-              ...files.map((f) => ({ id: crypto.randomUUID(), name: f.name, size: f.size })),
+              ...files.map((f) => ({ id: createId(), name: f.name, size: f.size })),
             ]);
             setError('');
             e.target.value = '';

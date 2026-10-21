@@ -1,3 +1,4 @@
+import { createId } from './id.js';
 export const money = (value) =>
   new Intl.NumberFormat('ru-RU', {
     style: 'currency',
@@ -155,7 +156,7 @@ export const defaultCompany = {
 export function newDraft(company, productId = 'working') {
   const product = products.find((p) => p.id === productId) || products[0];
   return {
-    id: crypto.randomUUID(),
+    id: createId(),
     number: `АК-${Date.now().toString().slice(-6)}`,
     productId: product.id,
     purpose: 'Пополнение оборотных средств',
@@ -181,7 +182,7 @@ export function initialState() {
     applications: [application],
     notifications: [
       {
-        id: crypto.randomUUID(),
+        id: createId(),
         text: 'Заявка одобрена. Предложение уже ждёт вас в кабинете.',
         at: new Date().toISOString(),
       },

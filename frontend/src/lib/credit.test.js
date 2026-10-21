@@ -2,12 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   defaultCompany,
+  initialState,
   monthlyPayment,
   newDraft,
   runChecks,
   scoreApplication,
   transition,
 } from './credit.js';
+import { createId } from './id.js';
 import { webcrypto } from 'node:crypto';
 if (!globalThis.crypto) globalThis.crypto = webcrypto;
 const submitted = (scenario = 'auto') =>
@@ -43,4 +45,24 @@ test('high debt leads to refusal in automatic mode', () => {
 test('calculates an annuity payment, including zero interest', () => {
   assert.equal(monthlyPayment(120000, 12, 0), 10000);
   assert.ok(Math.abs(monthlyPayment(1500000, 24, 24) - 79306.65) < 1);
+});
+
+test('initializes the dashboard and generates UUIDs over HTTP without randomUUID', () => {
+  const original = Object.getOwnPropertyDescriptor(globalThis, 'crypto');
+  Object.defineProperty(globalThis, 'crypto', {
+    configurable: true,
+    value: { getRandomValues: webcrypto.getRandomValues.bind(webcrypto) },
+  });
+  try {
+    const state = initialState();
+    assert.equal(state.applications[0].status, 'offer');
+    const ids = [state.applications[0].id, state.notifications[0].id];
+    for (let i = 0; i < 100; i++) ids.push(createId());
+    for (const id of ids) {
+      assert.match(id, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+    }
+    assert.equal(new Set(ids).size, ids.length);
+  } finally {
+    Object.defineProperty(globalThis, 'crypto', original);
+  }
 });

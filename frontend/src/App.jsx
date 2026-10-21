@@ -1,3 +1,4 @@
+import { createId } from './lib/id.js';
 import { useEffect, useState } from 'react';
 import {
   ArrowLeftRight,
@@ -92,7 +93,7 @@ export default function App() {
         notifications: announce
           ? [
               {
-                id: crypto.randomUUID(),
+                id: createId(),
                 text: `Заявка ${application.number}: ${statusLabels[application.status]}`,
                 at: new Date().toISOString(),
               },
