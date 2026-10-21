@@ -218,3 +218,31 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# React / Node.js dependencies
+node_modules/
+.pnp
+.pnp.*
+
+# React build output (build/ and dist/ are ignored above)
+.vite/
+dist-ssr/
+*.tsbuildinfo
+
+# JavaScript test coverage and tool caches
+coverage/
+.nyc_output/
+.eslintcache
+.stylelintcache
+.parcel-cache/
+
+# Package manager debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local environment overrides; keep example configuration available
+.env.*
+!.env.example
+!.env.*.example
