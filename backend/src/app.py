@@ -46,3 +46,15 @@ def create_app() -> FastAPI:
 
     return app
 
+
+@asynccontextmanager
+async def worker_lifespan(app: FastAPI) -> AsyncIterator[None]:
+    engine = create_engine(settings.postgres, settings.sql_engine)
+    app.state.sessionmaker = create_sessionmaker(engine)
+    yield
+    await engine.dispose()
+
+
+def create_worker_app() -> FastAPI:
+    """Приложение для воркера Taskiq: те же зависимости, но без HTTP-роутов."""
+    return FastAPI(lifespan=worker_lifespan)
