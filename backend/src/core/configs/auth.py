@@ -3,10 +3,10 @@ from pydantic import BaseModel
 
 class JWTSettings(BaseModel):
     JWT_TOKEN_MAX_LENGTH: int = 8192
-    VERIFY_AUTHORIZED_PARTY: bool = False
+    VERIFY_AUTHORIZED_PARTY: bool = True
 
     ALGORITHM: list[str] = ["RS256"]
-    AUDIENCE: list[str] = ["account"]
+    AUDIENCE: list[str] = ["credit-backend"]
     LEEWAY: int = 10
     ISSUER: str
 

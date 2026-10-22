@@ -1,0 +1,151 @@
+{
+  "realm": "alfa-credit",
+  "displayName": "Умный кредитный кабинет",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": false,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "accessTokenLifespan": 900,
+  "ssoSessionIdleTimeout": 3600,
+  "internationalizationEnabled": true,
+  "supportedLocales": ["ru", "en"],
+  "defaultLocale": "ru",
+  "roles": {
+    "realm": [
+      {
+        "name": "client",
+        "description": "Представитель компании-клиента"
+      },
+      {
+        "name": "underwriter",
+        "description": "Кредитный специалист банка"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "credit-cabinet-web",
+      "name": "Кредитный кабинет предпринимателя",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "frontchannelLogout": true,
+      "fullScopeAllowed": true,
+      "redirectUris": [
+        "http://localhost:8000/docs/oauth2-redirect",
+        "http://localhost:3000/*",
+        "http://localhost:5173/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8000",
+        "http://localhost:3000",
+        "http://localhost:5173"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:3000/*##http://localhost:5173/*"
+      },
+      "protocolMappers": [
+        {
+          "name": "audience-credit-backend",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "credit-backend",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "id": "00000000-0000-4000-8000-000000000101",
+      "username": "ip.ivanov",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Иван",
+      "lastName": "Иванов",
+      "email": "ip.ivanov@example.com",
+      "credentials": [{"type": "password", "value": "alfa2026", "temporary": false}],
+      "realmRoles": ["default-roles-alfa-credit", "client"]
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000102",
+      "username": "ooo.romashka.director",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Ольга",
+      "lastName": "Ромашкина",
+      "email": "director@romashka.example.com",
+      "credentials": [{"type": "password", "value": "alfa2026", "temporary": false}],
+      "realmRoles": ["default-roles-alfa-credit", "client"]
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000103",
+      "username": "ooo.romashka.accountant",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Марина",
+      "lastName": "Счётова",
+      "email": "accountant@romashka.example.com",
+      "credentials": [{"type": "password", "value": "alfa2026", "temporary": false}],
+      "realmRoles": ["default-roles-alfa-credit", "client"]
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000104",
+      "username": "ooo.vector.director",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Виктор",
+      "lastName": "Векторов",
+      "email": "director@vector.example.com",
+      "credentials": [{"type": "password", "value": "alfa2026", "temporary": false}],
+      "realmRoles": ["default-roles-alfa-credit", "client"]
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000105",
+      "username": "ip.petrov",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Пётр",
+      "lastName": "Петров",
+      "email": "ip.petrov@example.com",
+      "credentials": [{"type": "password", "value": "alfa2026", "temporary": false}],
+      "realmRoles": ["default-roles-alfa-credit", "client"]
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000106",
+      "username": "ooo.delta.director",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Денис",
+      "lastName": "Дельцов",
+      "email": "director@delta.example.com",
+      "credentials": [{"type": "password", "value": "alfa2026", "temporary": false}],
+      "realmRoles": ["default-roles-alfa-credit", "client"]
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000107",
+      "username": "underwriter",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Анна",
+      "lastName": "Смирнова",
+      "email": "underwriter@bank.example.com",
+      "credentials": [{"type": "password", "value": "alfa2026", "temporary": false}],
+      "realmRoles": ["default-roles-alfa-credit", "underwriter"]
+    }
+  ]
+}
