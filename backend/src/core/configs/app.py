@@ -3,6 +3,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, model_validator
 
+from domain.entities.user import UserRole
+
 
 class Environment(StrEnum):
     DEV = "dev"
@@ -26,6 +28,7 @@ class AppSettings(BaseModel):
     AUTH_ENABLED: bool = True
 
     MOCK_USER_UUID: UUID | None = None
+    MOCK_USER_ROLE: UserRole = UserRole.CLIENT
 
     @model_validator(mode="after")
     def validate_auth_enabled(self) -> "AppSettings":
