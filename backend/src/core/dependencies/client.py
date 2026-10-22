@@ -22,6 +22,13 @@ from application.use_cases.client.catalog import (
     RecommendProducts,
 )
 from application.use_cases.client.get_profile import GetProfile
+from application.use_cases.client.offer import (
+    AcceptOffer,
+    GetContract,
+    RejectOffer,
+    RequestSignCode,
+    SignContract,
+)
 from core.dependencies.common import get_clock, get_scoring, get_task_queue, get_uow
 
 Uow = Annotated[UnitOfWork, Depends(get_uow)]
@@ -78,3 +85,23 @@ def get_submit(
 
 def get_copy(uow: Uow, clock: ClockDep) -> CopyApplication:
     return CopyApplication(uow, clock)
+
+
+def get_accept_offer(uow: Uow, clock: ClockDep) -> AcceptOffer:
+    return AcceptOffer(uow, clock)
+
+
+def get_reject_offer(uow: Uow, clock: ClockDep) -> RejectOffer:
+    return RejectOffer(uow, clock)
+
+
+def get_contract(uow: Uow) -> GetContract:
+    return GetContract(uow)
+
+
+def get_request_sign_code(uow: Uow, clock: ClockDep) -> RequestSignCode:
+    return RequestSignCode(uow, clock)
+
+
+def get_sign_contract(uow: Uow, clock: ClockDep, tasks: Tasks) -> SignContract:
+    return SignContract(uow, clock, tasks)

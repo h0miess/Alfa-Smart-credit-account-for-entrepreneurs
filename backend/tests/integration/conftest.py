@@ -25,6 +25,7 @@ from infra.postgres.mappings import start_mappers
 from infra.postgres.models import metadata
 from seed.loader import load_seed
 from tests.fakes import FakeAuthService, FakeScoringGateway, FakeTaskQueue
+from tests.integration.pipeline import disburse, http_client, process  # noqa: F401
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
 
