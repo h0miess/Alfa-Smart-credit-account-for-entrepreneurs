@@ -1,0 +1,24 @@
+# Окружения и кэши
+.venv
+**/__pycache__
+**/*.py[cod]
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.coverage
+htmlcov
+
+# В образ не попадают тесты, документация и локальные секреты
+tests
+README.md
+.python-version
+.env
+.env.*
+
+# Служебное
+.git
+.gitignore
+.dockerignore
+Dockerfile
+.idea
+.vscode
