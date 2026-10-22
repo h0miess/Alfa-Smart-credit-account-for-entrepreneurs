@@ -1,25 +1,29 @@
-COMPOSE_FILE := compose.yml
+COMPOSE := docker compose -f compose.yml
 APP_SERVICE := credit-backend
 
 .DEFAULT_GOAL := help
 
 
-.PHONY: up up_build stop down down_v bash logs logs_all
+.env:
+	cp .env.test .env
 
-up:
-	docker compose -f $(COMPOSE_FILE) up -d
 
-up_build:
-	docker compose -f $(COMPOSE_FILE) up -d --build
+.PHONY: up up_build stop down down_v bash logs logs_all migrate
+
+up: .env
+	$(COMPOSE) up -d
+
+up_build: .env
+	$(COMPOSE) up -d --build
 
 stop:
-	docker compose -f $(COMPOSE_FILE) stop
+	$(COMPOSE) stop
 
 down:
-	docker compose -f $(COMPOSE_FILE) down
+	$(COMPOSE) down
 
 down_v:
-	docker compose -f $(COMPOSE_FILE) down -v
+	$(COMPOSE) down -v
 
 bash:
 	docker exec -it $(APP_SERVICE) bash
@@ -28,7 +32,10 @@ logs:
 	docker logs $(APP_SERVICE) -f
 
 logs_all:
-	docker compose -f $(COMPOSE_FILE) logs -f
+	$(COMPOSE) logs -f
+
+migrate:
+	$(COMPOSE) run --rm credit-migrate
 
 
 .PHONY: help
@@ -45,3 +52,4 @@ help:
 	@echo "  bash             Запуск bash в основном контейнере (${APP_SERVICE})"
 	@echo "  logs             Просмотр логов основного контейнера (${APP_SERVICE}) в реальном времени"
 	@echo "  logs_all         Просмотр логов всех контейнеров в реальном времени"
+	@echo "  migrate          Применение миграций БД"
