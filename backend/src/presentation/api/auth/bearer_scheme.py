@@ -8,7 +8,7 @@ if settings.app.ENVIRONMENT.is_local_environment and not settings.app.AUTH_ENABL
         return None
 else:
     # Authorization Code + PKCE: кнопка Authorize в Swagger ведёт на страницу логина Keycloak
-    bearer_scheme = OAuth2AuthorizationCodeBearer(
+    bearer_scheme = OAuth2AuthorizationCodeBearer(  # type: ignore[assignment]
         authorizationUrl=settings.auth.keycloak.public_url_auth,
         tokenUrl=settings.auth.keycloak.public_url_token,
         refreshUrl=settings.auth.keycloak.public_url_token,

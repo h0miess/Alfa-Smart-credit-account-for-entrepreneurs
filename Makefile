@@ -38,6 +38,15 @@ migrate:
 	$(COMPOSE) run --rm credit-migrate
 
 
+.PHONY: lint test
+
+lint:
+	cd backend && uv run ruff check src tests && uv run ruff format --check src tests && uv run mypy src
+
+test:
+	cd backend && uv run pytest
+
+
 .PHONY: help
 
 help:
@@ -53,3 +62,7 @@ help:
 	@echo "  logs             Просмотр логов основного контейнера (${APP_SERVICE}) в реальном времени"
 	@echo "  logs_all         Просмотр логов всех контейнеров в реальном времени"
 	@echo "  migrate          Применение миграций БД"
+	@echo ""
+	@echo "Разработка:"
+	@echo "  lint             ruff и mypy для backend"
+	@echo "  test             Тесты backend (интеграционным нужен Docker)"
