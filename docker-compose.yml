@@ -27,6 +27,35 @@ services:
       timeout: 3s
       retries: 3
 
+  credit-keycloak:
+    image: quay.io/keycloak/keycloak:26.8.1
+    container_name: credit-keycloak
+    command: start-dev --import-realm
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: "admin"
+      KC_HEALTH_ENABLED: "true"
+      KC_HOSTNAME: http://localhost:8080
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - credit_keycloak_data:/opt/keycloak/data
+      - ./infra/keycloak:/opt/keycloak/data/import:ro
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000 && printf 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q '200 OK' <&3"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
   credit-backend:
     build: ./backend
     container_name: credit-backend
@@ -35,6 +64,8 @@ services:
     depends_on:
       credit-postgres:
         condition: service_healthy
+      credit-keycloak:
+        condition: service_healthy
     ports:
       - "127.0.0.1:8000:8000"
     volumes:
@@ -42,3 +73,4 @@ services:
 
 volumes:
   credit_postgres_data:
+  credit_keycloak_data:

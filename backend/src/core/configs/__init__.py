@@ -1,5 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from core.configs.app import AppSettings
+from core.configs.auth import AuthSettings
 from core.configs.database import PostgresSettings, SQLEngineSettings
 
 
@@ -10,8 +12,10 @@ class Settings(BaseSettings):
         env_nested_delimiter="__",
         extra="ignore",
     )
+    app: AppSettings
     postgres: PostgresSettings
     sql_engine: SQLEngineSettings = SQLEngineSettings()
+    auth: AuthSettings
 
 
 settings = Settings()
