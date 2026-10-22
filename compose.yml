@@ -125,8 +125,12 @@ services:
         limits:
           cpus: '0.5'
           memory: 256M
+    environment:
+      SEED_FILE: /seed/companies.json
     ports:
       - "127.0.0.1:8002:8000"
+    volumes:
+      - ./seed:/seed:ro
 
   credit-migrate:
     <<: *backend
