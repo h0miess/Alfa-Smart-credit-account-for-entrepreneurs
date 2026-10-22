@@ -2558,3 +2558,34 @@ footer > span:last-child {
     transition: none !important;
   }
 }
+
+.status-with-help {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-width: 250px;
+  text-align: left;
+}
+.status-with-help small {
+  font-size: 10px;
+  color: #747b86;
+  line-height: 1.5;
+  white-space: normal;
+}
+.status-banner {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #edf3ef;
+  border: 1px solid #dde9e0;
+  color: #365447;
+}
+@media (max-width: 700px) {
+  .status-banner {
+    top: 104px;
+  }
+  .application-row > .status-with-help {
+    grid-column: 1/-1;
+    max-width: none;
+  }
+}

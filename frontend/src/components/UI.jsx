@@ -1,12 +1,16 @@
 import { ArrowUpRight, Wallet, TrendingUp, Layers, Zap, X } from 'lucide-react';
 import { useEffect, useRef } from 'react';
-import { statusLabels } from '../lib/credit';
+import { statusLabels, statusGuidance } from '../lib/credit';
 export const productIcons = { wallet: Wallet, growth: TrendingUp, layers: Layers, bolt: Zap };
 export function Status({ status }) {
   return (
-    <span className={`status status-${status}`}>
-      <i />
-      {statusLabels[status]}
+    <span className="status-with-help">
+      <span className={`status status-${status}`}>
+        <i />
+        {statusLabels[status]}
+      </span>
+      <small>{statusGuidance[status]?.[1]}</small>
+      <small>{statusGuidance[status]?.[0]}</small>
     </span>
   );
 }

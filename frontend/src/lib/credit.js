@@ -30,32 +30,22 @@ export const products = [
     name: 'Кредит на развитие бизнеса',
     short: 'На развитие бизнеса',
     description: 'Оборудование, новые точки и большие планы для вашего дела.',
-    max: 30000000,
-    min: 500000,
-    months: 60,
+    max: 100000000,
+    min: 1000000,
+    minMonths: 12,
+    months: 84,
     rate: 22,
     icon: 'growth',
     tag: 'Для больших планов',
-  },
-  {
-    id: 'line',
-    name: 'Возобновляемая кредитная линия',
-    short: 'Кредитная линия',
-    description: 'Используйте деньги по мере необходимости в пределах лимита.',
-    max: 15000000,
-    min: 100000,
-    months: 24,
-    rate: 25,
-    icon: 'layers',
-    tag: 'Гибкое финансирование',
   },
   {
     id: 'overdraft',
     name: 'Овердрафт',
     short: 'Овердрафт',
     description: 'Поддержка на случай кассового разрыва. Деньги всегда под рукой.',
-    max: 3000000,
+    max: 15000000,
     min: 50000,
+    minMonths: 12,
     months: 12,
     rate: 26,
     icon: 'bolt',
@@ -64,15 +54,16 @@ export const products = [
 ];
 export const statusLabels = {
   draft: 'Черновик',
-  submitted: 'Отправлена',
-  checking: 'Проверка данных',
-  external: 'Внешние проверки',
-  scoring: 'Скоринг',
-  review: 'На рассмотрении',
-  info: 'Нужны сведения',
-  offer: 'Одобрена',
-  signed: 'Подписана',
-  funded: 'Средства предоставлены',
+  submitted: 'Заявка на рассмотрении',
+  checking: 'Заявка на рассмотрении',
+  external: 'Заявка на рассмотрении',
+  scoring: 'Заявка на рассмотрении',
+  review: 'Заявку проверяет специалист',
+  info: 'Нужны документы',
+  offer: 'Готово предложение',
+  accepted: 'Условия приняты',
+  signed: 'Договор подписан',
+  funded: 'Деньги на счёте',
   rejected: 'Отказ',
   declined: 'Оферта отклонена',
 };
@@ -84,7 +75,8 @@ const transitions = {
   scoring: ['review', 'info', 'offer', 'rejected'],
   review: ['info', 'offer', 'rejected'],
   info: ['checking'],
-  offer: ['signed', 'declined'],
+  offer: ['accepted', 'signed', 'declined'],
+  accepted: ['signed'],
   signed: ['funded'],
   funded: [],
   rejected: [],
@@ -93,10 +85,22 @@ const transitions = {
 export function transition(application, status, note, actor = 'Система') {
   if (!transitions[application.status]?.includes(status))
     throw new Error(`Недопустимый переход: ${application.status} → ${status}`);
+  if (
+    status === 'accepted' &&
+    application.offer_expires_at &&
+    Date.parse(application.offer_expires_at) <= Date.now()
+  )
+    throw new Error('Срок предложения истёк');
   return {
     ...application,
+    ...(status === 'offer'
+      ? { offer_expires_at: new Date(Date.now() + 14 * 86400000).toISOString() }
+      : {}),
     status,
-    history: [...application.history, { status, note, actor, at: new Date().toISOString() }],
+    history: [
+      ...application.history,
+      { from_status: application.status, status, note, actor, at: new Date().toISOString() },
+    ],
   };
 }
 export function monthlyPayment(amount, months, rate) {
@@ -125,6 +129,29 @@ export function runChecks(application) {
   next = {
     ...next,
     score,
+    reasons: [
+      {
+        label:
+          decision === 'rejected'
+            ? 'Доходов недостаточно для обслуживания запрошенной суммы'
+            : scenario === 'changed'
+              ? 'Сумма снижена, чтобы платёж соответствовал оборотам компании'
+              : decision === 'review'
+                ? 'Необходима дополнительная оценка специалистом'
+                : decision === 'info'
+                  ? 'Нужны подтверждающие документы'
+                  : 'Заявка соответствует условиям продукта',
+      },
+    ],
+    risk_factors: decision === 'rejected' ? [{ label: 'Высокая долговая нагрузка' }] : [],
+    positive_factors: decision === 'offer' ? [{ label: 'Регулярные поступления на счёт' }] : [],
+    requested_documents:
+      decision === 'info'
+        ? [
+            'Финансовая отчётность за последний квартал',
+            'Выписка по счетам в других банках за 12 месяцев',
+          ]
+        : [],
     checkedAt: new Date().toISOString(),
     checks: ['ЕГРЮЛ / ЕГРИП', 'ФНС «Прозрачный бизнес»', 'Кредитная история (БКИ)'],
     approvedAmount: scenario === 'changed' ? Math.round(next.amount * 0.8) : Number(next.amount),
@@ -168,6 +195,7 @@ export function newDraft(company, productId = 'working') {
     status: 'draft',
     scenario: 'auto',
     step: 0,
+    collateral_value: 0,
     documents: [],
     history: [
       { status: 'draft', at: new Date().toISOString(), actor: 'Клиент', note: 'Заявка создана' },
@@ -199,9 +227,42 @@ export function readState() {
       Array.isArray(value.applications) &&
       Array.isArray(value.notifications)
     )
-      return value;
+      return {
+        ...value,
+        applications: value.applications.map((a) => ({
+          ...a,
+          productId: a.productId === 'line' ? 'working' : a.productId,
+        })),
+      };
   } catch {
     /* Start with synthetic data if storage is unavailable or invalid. */
   }
   return initialState();
+}
+
+export const statusGuidance = {
+  draft: ['Заполните параметры и отправьте заявку', 'В удобное для вас время'],
+  submitted: ['Дополнительных действий не требуется', 'Обычно несколько минут'],
+  checking: ['Проверяем сведения о компании', 'Обычно несколько минут'],
+  external: ['Получаем сведения из источников', 'Обычно несколько минут'],
+  scoring: ['Готовим решение', 'Обычно несколько минут'],
+  review: ['Ожидайте решения специалиста', 'Ориентир — 1 рабочий день'],
+  info: ['Загрузите весь список документов в эту заявку', 'Ответьте в течение 30 дней'],
+  offer: ['Изучите условия и примите или отклоните предложение', 'Предложение действует 14 дней'],
+  accepted: ['Подпишите договор кодом в кабинете', 'Обычно несколько минут'],
+  signed: ['Ожидайте зачисления на расчётный счёт', 'В демо — сразу после подтверждения выдачи'],
+  funded: ['Зачисление на расчётный счёт подтверждено (демо)', 'Оформление завершено'],
+  rejected: ['Изучите причины и измените параметры новой заявки', 'Рассмотрение завершено'],
+  declined: ['При необходимости создайте новую заявку', 'Заявка закрыта'],
+};
+export function offerTerms(a) {
+  const product = products.find((p) => p.id === a.productId);
+  return (
+    (a.offer ? { ...a.offer, annual_rate_pct: a.offer.annual_rate_pct ?? a.offer.rate } : null) || {
+      amount: a.approvedAmount || a.amount,
+      term_months: a.months,
+      annual_rate_pct: product.rate,
+      monthly_payment: monthlyPayment(a.approvedAmount || a.amount, a.months, product.rate),
+    }
+  );
 }

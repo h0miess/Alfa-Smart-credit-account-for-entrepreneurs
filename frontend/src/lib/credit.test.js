@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   defaultCompany,
   initialState,
+  offerTerms,
   monthlyPayment,
   newDraft,
   runChecks,
@@ -65,4 +66,24 @@ test('initializes the dashboard and generates UUIDs over HTTP without randomUUID
   } finally {
     Object.defineProperty(globalThis, 'crypto', original);
   }
+});
+
+test('accepted offer preserves model conditions through signing and issuance', () => {
+  const a = runChecks(submitted());
+  a.offer = { amount: 1200000, term_months: 36, rate: 21, monthly_payment: 45210 };
+  const terms = offerTerms(a);
+  assert.equal(terms.annual_rate_pct, 21);
+  const accepted = transition({ ...a, offer: terms }, 'accepted', 'Условия приняты');
+  const funded = transition(transition(accepted, 'signed', 'Подписано'), 'funded', 'Зачислено');
+  assert.deepEqual(funded.offer, terms);
+  assert.equal(funded.history.at(-1).from_status, 'signed');
+});
+test('expired offer cannot be accepted', () => {
+  const a = { ...runChecks(submitted()), offer_expires_at: '2020-01-01T00:00:00Z' };
+  assert.throws(() => transition(a, 'accepted', 'Принято'), /истёк/);
+});
+test('document requests include a complete list and reasons', () => {
+  const a = runChecks(submitted('info'));
+  assert.equal(a.requested_documents.length, 2);
+  assert.ok(a.reasons[0].label);
 });

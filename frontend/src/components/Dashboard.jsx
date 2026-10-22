@@ -72,18 +72,18 @@ export default function Dashboard({ state, onNavigate, onNew, onOpen, onReport }
                 <circle className="ring-value" cx="60" cy="60" r="51" />
               </svg>
               <div>
-                <strong>812</strong>
-                <small>из 950</small>
+                <strong style={{ fontSize: 18 }}>Профиль</strong>
+                <small>компании</small>
               </div>
             </div>
             <div>
-              <span className="status status-offer">Высокий рейтинг</span>
+              <span className="status status-offer">Данные актуальны</span>
               <p>
                 Ваш бизнес готов
                 <br />к новым возможностям
               </p>
               <span className="positive">
-                <TrendingUp size={14} /> +24 балла за месяц
+                <TrendingUp size={14} /> Поступления регулярные
               </span>
             </div>
           </div>

@@ -388,6 +388,7 @@ export default function App() {
               />
             ) : (
               <ApplicationDetails
+                canSign={state.company.role === 'Генеральный директор'}
                 key={selected.id}
                 application={selected}
                 mode={mode}
@@ -460,9 +461,7 @@ export default function App() {
         <Modal title="Кредитное здоровье бизнеса" onClose={() => setModal(null)}>
           <div className="report-score">
             <ShieldCheck size={40} />
-            <strong>
-              812 <small>/ 950</small>
-            </strong>
+            <strong>Профиль бизнеса</strong>
           </div>
           <p>Высокий рейтинг · иллюстративный отчёт на синтетических данных.</p>
           <dl className="review-list">
@@ -484,8 +483,8 @@ export default function App() {
             </div>
           </dl>
           <div className="info-box">
-            Этот индекс показан для примера. Скоринг каждой новой заявки рассчитывается отдельно по
-            её финансовым данным.
+            Это пример отчёта о состоянии бизнеса. Скоринг каждой новой заявки рассчитывается
+            отдельно по её финансовым данным.
           </div>
         </Modal>
       )}

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { ArrowLeft, ArrowRight, CheckCircle2, FileCheck2, ShieldCheck } from 'lucide-react';
 import {
+  offerTerms,
+  statusGuidance,
   dateTime,
   money,
   monthlyPayment,
@@ -11,14 +13,34 @@ import {
 } from '../lib/credit';
 import { Field, Status, Modal } from './UI';
 import { DocumentUpload } from './Wizard';
-export default function ApplicationDetails({ application: a, onUpdate, onBack, mode, notify }) {
+export default function ApplicationDetails({
+  application: a,
+  onUpdate,
+  onBack,
+  mode,
+  notify,
+  canSign,
+}) {
   const [signing, setSigning] = useState(false);
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [comment, setComment] = useState('');
   const product = products.find((p) => p.id === a.productId);
-  const amount = a.approvedAmount || a.amount;
-  const payment = monthlyPayment(amount, a.months, product.rate);
+  const terms = offerTerms(a);
+  const amount = terms.amount;
+  const payment = terms.monthly_payment;
+  const [changedAmount, setChangedAmount] = useState(amount);
+  const [changedMonths, setChangedMonths] = useState(terms.term_months);
+  const [changedRate, setChangedRate] = useState(terms.annual_rate_pct);
+  const [requested, setRequested] = useState('Финансовая отчётность за последний квартал');
+  const documents = a.requested_documents?.length
+    ? a.requested_documents
+    : ['Финансовая отчётность за последний квартал'];
+  const completeDocuments = documents.every((label) =>
+    a.documents.some((d) => d.request === label),
+  );
+
+  const offerExpired = a.offer_expires_at && Date.parse(a.offer_expires_at) <= Date.now();
   const terminal = ['rejected', 'declined'].includes(a.status);
   const stages = [
     'submitted',
@@ -27,12 +49,20 @@ export default function ApplicationDetails({ application: a, onUpdate, onBack, m
     'scoring',
     'review',
     'offer',
+    'accepted',
     'signed',
     'funded',
   ];
   const position = a.status === 'info' ? 4 : stages.indexOf(a.status);
   const advance = (status, note) =>
-    onUpdate(transition(a, status, note, mode === 'bank' ? 'Кредитный менеджер' : 'Клиент'));
+    onUpdate(
+      transition(
+        mode === 'bank' ? { ...a, reasons: [{ label: note }] } : a,
+        status,
+        note,
+        mode === 'bank' ? 'Андеррайтер' : 'Клиент',
+      ),
+    );
   return (
     <>
       <button className="text-button back-link" onClick={onBack}>
@@ -48,6 +78,11 @@ export default function ApplicationDetails({ application: a, onUpdate, onBack, m
           </p>
         </div>
         <Status status={a.status} />
+      </div>
+      <div className="info-box status-banner">
+        <strong>{statusLabels[a.status]}</strong>
+        <p>{statusGuidance[a.status]?.[0]}</p>
+        <span>{statusGuidance[a.status]?.[1]}</span>
       </div>
       <div className="detail-layout">
         <div>
@@ -90,8 +125,16 @@ export default function ApplicationDetails({ application: a, onUpdate, onBack, m
                 </button>
               </div>
             )}
-            {['offer', 'signed', 'funded'].includes(a.status) && (
+            {['offer', 'accepted', 'signed', 'funded'].includes(a.status) && (
               <>
+                <p>
+                  {a.offer_expires_at
+                    ? `Предложение действительно до ${dateTime(a.offer_expires_at)}`
+                    : 'Демо-предложение: срок действия уточняется'}
+                  {offerExpired && a.status === 'offer'
+                    ? ' · Срок истёк, требуется новое предложение'
+                    : ''}
+                </p>
                 <div className="offer-summary">
                   <div>
                     <span>Одобренная сумма</span>
@@ -104,13 +147,17 @@ export default function ApplicationDetails({ application: a, onUpdate, onBack, m
                   <div>
                     <span>Ставка / срок</span>
                     <strong>
-                      {product.rate}% / {a.months} мес.
+                      {terms.annual_rate_pct}% / {terms.term_months} мес.
                     </strong>
                   </div>
                 </div>
-                {amount !== Number(a.amount) && (
+                {(amount !== Number(a.amount) ||
+                  terms.term_months !== a.months ||
+                  terms.annual_rate_pct !== product.rate) && (
                   <div className="info-box">
-                    Сумма изменена: запрошено {money(a.amount)}, одобрено {money(amount)}.
+                    Встречное предложение: сумма {money(a.amount)} → {money(amount)}; срок{' '}
+                    {a.months} → {terms.term_months} мес.; ставка предварительного расчёта{' '}
+                    {product.rate}% → {terms.annual_rate_pct}%. Причины изменений указаны ниже.
                   </div>
                 )}
                 <details className="payment-schedule">
@@ -125,9 +172,11 @@ export default function ApplicationDetails({ application: a, onUpdate, onBack, m
                       </tr>
                     </thead>
                     <tbody>
-                      {Array.from({ length: a.months }, (_, i) => {
-                        const r = product.rate / 1200;
-                        const balance = amount * (1 + r) ** i - (payment * ((1 + r) ** i - 1)) / r;
+                      {Array.from({ length: terms.term_months }, (_, i) => {
+                        const r = terms.annual_rate_pct / 1200;
+                        const balance = r
+                          ? amount * (1 + r) ** i - (payment * ((1 + r) ** i - 1)) / r
+                          : amount - payment * i;
                         const interest = balance * r;
                         return (
                           <tr key={i}>
@@ -141,9 +190,9 @@ export default function ApplicationDetails({ application: a, onUpdate, onBack, m
                     </tbody>
                   </table>
                 </details>
-                <p className="muted">
-                  Демо-условия: без залога и комиссий. Первый платёж через месяц после выдачи.
-                  Расчёт иллюстративный.
+                <p>
+                  Демо-условия: комиссии — 0 ₽. Заявленный залог: {money(a.collateral_value || 0)}.
+                  Первый платёж через месяц после выдачи. Расчёт иллюстративный.
                 </p>
               </>
             )}
@@ -155,10 +204,41 @@ export default function ApplicationDetails({ application: a, onUpdate, onBack, m
                 >
                   Отклонить
                 </button>
-                <button className="button primary" onClick={() => setSigning(true)}>
-                  Принять и подписать
+                <button
+                  className="button primary"
+                  disabled={offerExpired}
+                  onClick={() =>
+                    onUpdate(
+                      transition(
+                        { ...a, offer: terms },
+                        'accepted',
+                        'Клиент принял условия предложения без изменений',
+                        'Клиент',
+                      ),
+                    )
+                  }
+                >
+                  Принять условия
                   <ArrowRight size={17} />
                 </button>
+              </div>
+            )}
+            {a.status === 'accepted' && mode === 'client' && (
+              <div className="info-box">
+                <p>
+                  Договор сформирован на принятых условиях: {money(amount)}, {terms.term_months}{' '}
+                  мес., {terms.annual_rate_pct}%.
+                </p>
+                {canSign ? (
+                  <button className="button primary" onClick={() => setSigning(true)}>
+                    Подписать договор
+                  </button>
+                ) : (
+                  <p>
+                    Подписание доступно руководителю. В демо: смените роль представителя на
+                    «Генеральный директор» в профиле и вернитесь в эту заявку.
+                  </p>
+                )}
               </div>
             )}
             {a.status === 'signed' && mode === 'client' && (
@@ -183,14 +263,31 @@ export default function ApplicationDetails({ application: a, onUpdate, onBack, m
             )}
             {a.status === 'info' && (
               <>
-                <DocumentUpload
-                  documents={a.documents}
-                  onChange={(documents) => onUpdate({ ...a, documents }, false)}
-                />
+                <h3>Полный список запрошенных документов</h3>
+                {documents.map((label) => (
+                  <div key={label}>
+                    <h3>{label}</h3>
+                    <DocumentUpload
+                      documents={a.documents.filter((d) => d.request === label)}
+                      onChange={(files) =>
+                        onUpdate(
+                          {
+                            ...a,
+                            documents: [
+                              ...a.documents.filter((d) => d.request !== label),
+                              ...files.map((d) => ({ ...d, request: label })),
+                            ],
+                          },
+                          false,
+                        )
+                      }
+                    />
+                  </div>
+                ))}
                 {mode === 'client' && (
                   <button
                     className="button primary"
-                    disabled={!a.documents.length}
+                    disabled={!completeDocuments}
                     onClick={() => {
                       const next = transition(
                         a,
@@ -235,6 +332,69 @@ export default function ApplicationDetails({ application: a, onUpdate, onBack, m
                     required
                   />
                 </Field>
+                <Field label="Полный список документов (по одному на строку)">
+                  <textarea value={requested} onChange={(e) => setRequested(e.target.value)} />
+                </Field>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const offer = {
+                      amount: Number(changedAmount),
+                      term_months: Number(changedMonths),
+                      annual_rate_pct: Number(changedRate),
+                      monthly_payment: monthlyPayment(
+                        Number(changedAmount),
+                        Number(changedMonths),
+                        Number(changedRate),
+                      ),
+                    };
+                    onUpdate(
+                      transition(
+                        { ...a, offer, reasons: [{ label: comment }] },
+                        'offer',
+                        comment,
+                        'Андеррайтер',
+                      ),
+                    );
+                  }}
+                >
+                  <div className="form-grid">
+                    <Field label="Предлагаемая сумма">
+                      <input
+                        type="number"
+                        required
+                        min={product.min}
+                        max={product.max}
+                        value={changedAmount}
+                        onChange={(e) => setChangedAmount(e.target.value)}
+                      />
+                    </Field>
+                    <Field label="Срок">
+                      <input
+                        type="number"
+                        required
+                        min={product.minMonths || 3}
+                        max={product.months}
+                        value={changedMonths}
+                        onChange={(e) => setChangedMonths(e.target.value)}
+                      />
+                    </Field>
+                    <Field label="Ставка, %">
+                      <input
+                        type="number"
+                        required
+                        min="0"
+                        max="100"
+                        step="0.01"
+                        value={changedRate}
+                        onChange={(e) => setChangedRate(e.target.value)}
+                      />
+                    </Field>
+                  </div>
+                  <button className="button secondary" disabled={!comment.trim()}>
+                    Предложить изменённые условия
+                  </button>
+                </form>
                 <div className="button-row">
                   <button
                     className="button primary"
@@ -245,8 +405,23 @@ export default function ApplicationDetails({ application: a, onUpdate, onBack, m
                   </button>
                   <button
                     className="button secondary"
-                    disabled={!comment.trim()}
-                    onClick={() => advance('info', comment)}
+                    disabled={!comment.trim() || !requested.trim()}
+                    onClick={() =>
+                      onUpdate(
+                        transition(
+                          {
+                            ...a,
+                            requested_documents: requested
+                              .split('\n')
+                              .map((x) => x.trim())
+                              .filter(Boolean),
+                          },
+                          'info',
+                          comment,
+                          'Андеррайтер',
+                        ),
+                      )
+                    }
                   >
                     Запросить сведения
                   </button>
@@ -258,6 +433,34 @@ export default function ApplicationDetails({ application: a, onUpdate, onBack, m
                     Отказать
                   </button>
                 </div>
+              </div>
+            )}
+            {(a.reasons || a.risk_factors || a.positive_factors) && (
+              <section>
+                <h3>Почему принято такое решение</h3>
+                {[
+                  ['Причины', a.reasons],
+                  ['Что требует внимания', a.risk_factors],
+                  ['Сильные стороны', a.positive_factors],
+                ].map(([title, items]) =>
+                  items?.length ? (
+                    <div key={title}>
+                      <h3>{title}</h3>
+                      <ul>
+                        {items.map((item, i) => (
+                          <li key={i}>{item.label || item.text || String(item)}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null,
+                )}
+              </section>
+            )}
+            {a.status === 'rejected' && (
+              <div className="info-box">
+                Что можно изменить: уменьшите сумму или увеличьте срок новой заявки, проверьте
+                актуальность данных об оборотах и погасите задолженности. Это не гарантирует
+                одобрение.
               </div>
             )}
             {terminal && (
@@ -298,35 +501,42 @@ export default function ApplicationDetails({ application: a, onUpdate, onBack, m
               ))}
             </ol>
           </section>
-          <section className="card detail-card">
-            <h3>Результаты проверок</h3>
-            {a.checkedAt ? (
-              <>
-                <div className="score-inline">
-                  <ShieldCheck size={26} />
-                  <strong>
-                    {a.score}
-                    <small> / 950</small>
-                  </strong>
-                </div>
-                <p className="muted">
-                  Скоринговая оценка. Итоговое решение учитывает сценарий и действия менеджера.
-                </p>
-                {a.checks.map((c) => (
-                  <p className="check-line" key={c}>
-                    <FileCheck2 size={17} />
-                    {c}
-                    <span>Mock</span>
+          {mode === 'bank' && (
+            <section className="card detail-card">
+              <h3>Результаты проверок</h3>
+              {a.checkedAt ? (
+                <>
+                  <p>
+                    PD: {a.pd == null ? 'не получена от модели' : `${(a.pd * 100).toFixed(2)}%`} ·
+                    Грейд: {a.grade || 'не получен'}
                   </p>
-                ))}
-                <small className="muted">
-                  Проверено {dateTime(a.checkedAt)}. Источники смоделированы, реальных запросов нет.
-                </small>
-              </>
-            ) : (
-              <p className="muted">Результаты появятся после запуска проверок.</p>
-            )}
-          </section>
+                  <div className="score-inline">
+                    <ShieldCheck size={26} />
+                    <strong>
+                      {a.score}
+                      <small> / 950</small>
+                    </strong>
+                  </div>
+                  <p className="muted">
+                    Скоринговая оценка. Итоговое решение учитывает сценарий и действия менеджера.
+                  </p>
+                  {a.checks.map((c) => (
+                    <p className="check-line" key={c}>
+                      <FileCheck2 size={17} />
+                      {c}
+                      <span>Mock</span>
+                    </p>
+                  ))}
+                  <small className="muted">
+                    Проверено {dateTime(a.checkedAt)}. Источники смоделированы, реальных запросов
+                    нет.
+                  </small>
+                </>
+              ) : (
+                <p className="muted">Результаты появятся после запуска проверок.</p>
+              )}
+            </section>
+          )}
           <section className="card detail-card">
             <h3>Данные клиента</h3>
             <dl className="review-list">
@@ -358,6 +568,10 @@ export default function ApplicationDetails({ application: a, onUpdate, onBack, m
           <form
             onSubmit={(e) => {
               e.preventDefault();
+              if (!canSign) {
+                setError('Подписание доступно руководителю');
+                return;
+              }
               if (code !== '1234') {
                 setError('Введите демо-код 1234');
                 return;
