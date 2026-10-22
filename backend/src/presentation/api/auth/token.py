@@ -3,6 +3,7 @@ from typing import Any
 from uuid import UUID
 
 import jwt
+from fastapi.concurrency import run_in_threadpool
 from starlette.requests import Request
 
 from application.exceptions.authorization import AuthorizationError
@@ -19,8 +20,8 @@ class PyJWKClientCache:
             timeout=settings.keycloak.CERTIFICATE_REQUEST_TIMEOUT_IN_SECONDS,
         )
 
-    def get_signing_key(self, token: str) -> jwt.PyJWK:
-        return self._jwk_client.get_signing_key_from_jwt(token)
+    async def get_signing_key(self, token: str) -> jwt.PyJWK:
+        return await run_in_threadpool(self._jwk_client.get_signing_key_from_jwt, token)
 
 
 class JWTContextProcessor(TokenContextProcessor):
@@ -37,7 +38,7 @@ class JWTContextProcessor(TokenContextProcessor):
         self._auth_settings = auth_settings
         self._token_context: TokenContext | None = None
 
-    def get_token_context(self) -> TokenContext:
+    async def get_token_context(self) -> TokenContext:
         self._logger.debug("Получение контекста токена")
 
         if self._token_context:
@@ -49,7 +50,7 @@ class JWTContextProcessor(TokenContextProcessor):
 
         self._logger.debug("Создание контекста токена")
         token = self._extract()
-        payload = self.verify(token)
+        payload = await self.verify(token)
         user_uuid = self.parse_user_uuid(payload.get("sub"))
         self._token_context = TokenContext(
             token=token,
@@ -61,18 +62,18 @@ class JWTContextProcessor(TokenContextProcessor):
         self._logger.debug("Создан контекст токена {user_uuid=%s}", user_uuid)
         return self._token_context
 
-    def get_user_uuid(self) -> UUID:
+    async def get_user_uuid(self) -> UUID:
         self._logger.debug("Получение UUID пользователя")
 
-        user_uuid = self.get_token_context().user_uuid
+        user_uuid = (await self.get_token_context()).user_uuid
         self._logger.debug("Получен UUID пользователя {user_uuid=%s}", user_uuid)
         return user_uuid
 
-    def verify(self, token: str) -> dict[str, Any]:
+    async def verify(self, token: str) -> dict[str, Any]:
         self._logger.debug("Верификация JWT токена")
 
         try:
-            signing_key = self._jwk_client.get_signing_key(token)
+            signing_key = await self._jwk_client.get_signing_key(token)
 
             payload: dict[str, Any] = jwt.decode(
                 token,
