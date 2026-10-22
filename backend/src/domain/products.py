@@ -20,6 +20,14 @@ class LoanPurpose(StrEnum):
     CASH_GAP = "cash_gap"
 
 
+PRODUCT_TITLES: Final[Mapping[ProductCode, str]] = MappingProxyType(
+    {
+        ProductCode.EXPRESS: "Экспресс-кредит на оборотные средства",
+        ProductCode.OVERDRAFT: "Овердрафт к расчётному счёту",
+        ProductCode.INVESTMENT: "Инвестиционный кредит",
+    }
+)
+
 PURPOSE_TITLES: Final[Mapping[LoanPurpose, str]] = MappingProxyType(
     {
         LoanPurpose.WORKING_CAPITAL: "Пополнить оборотные средства",
