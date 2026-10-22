@@ -1,4 +1,4 @@
-COMPOSE_FILE := docker-compose.yml
+COMPOSE_FILE := compose.yml
 APP_SERVICE := credit-backend
 
 .DEFAULT_GOAL := help
