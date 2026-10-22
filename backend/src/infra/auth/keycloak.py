@@ -102,13 +102,13 @@ class MockAuthService(AuthService):
     def __init__(self, settings: AppSettings) -> None:
         assert settings.MOCK_USER_UUID, "проверяется валидатором AppSettings"
         self._mock_user_uuid = settings.MOCK_USER_UUID
+        self._mock_user_role = settings.MOCK_USER_ROLE
 
     async def get_current_user_uuid(self) -> UUID:
         return self._mock_user_uuid
 
     async def get_current_user_roles(self) -> frozenset[UserRole]:
-        # заглушка обладает всеми ролями, чтобы локально были доступны все разделы
-        return frozenset(UserRole)
+        return frozenset({self._mock_user_role})
 
     async def get_user_info(self) -> UserInfo:
         return UserInfo(
