@@ -23,7 +23,43 @@
           "role": "owner",
           "can_sign": true
         }
-      ]
+      ],
+      "expected_outcome": "APPROVED",
+      "demo_request": {
+        "product": "express",
+        "requested_amount": 1500000,
+        "term_months": 12,
+        "purpose": "working_capital",
+        "collateral_value": 0
+      },
+      "sources": {
+        "egrul": {
+          "status": "ACTIVE",
+          "registration_date": "2019-04-15",
+          "okved": "47.19",
+          "director_changes_12m": 0,
+          "mass_address": false
+        },
+        "fns": {
+          "tax_arrears": false,
+          "arrears_amount": 0
+        },
+        "bki": {
+          "bki_history_months": 64,
+          "max_overdue_days_12m": 0,
+          "overdue_count_24m": 0,
+          "credit_inquiries_3m": 1,
+          "existing_debt": 350000,
+          "monthly_debt_payments": 32000
+        },
+        "statement": {
+          "avg_monthly_turnover": 2150000,
+          "turnover_volatility": 0.14,
+          "turnover_trend_12m": 0.12,
+          "cash_withdrawal_share": 0.07,
+          "top_counterparty_share": 0.16
+        }
+      }
     },
     {
       "scenario": "COUNTER_OFFER",
@@ -55,7 +91,43 @@
           "role": "accountant",
           "can_sign": false
         }
-      ]
+      ],
+      "expected_outcome": "COUNTER_OFFER",
+      "demo_request": {
+        "product": "express",
+        "requested_amount": 9000000,
+        "term_months": 12,
+        "purpose": "working_capital",
+        "collateral_value": 0
+      },
+      "sources": {
+        "egrul": {
+          "status": "ACTIVE",
+          "registration_date": "2017-09-12",
+          "okved": "25.62",
+          "director_changes_12m": 0,
+          "mass_address": false
+        },
+        "fns": {
+          "tax_arrears": false,
+          "arrears_amount": 0
+        },
+        "bki": {
+          "bki_history_months": 72,
+          "max_overdue_days_12m": 0,
+          "overdue_count_24m": 1,
+          "credit_inquiries_3m": 2,
+          "existing_debt": 2400000,
+          "monthly_debt_payments": 240000
+        },
+        "statement": {
+          "avg_monthly_turnover": 2600000,
+          "turnover_volatility": 0.22,
+          "turnover_trend_12m": 0.05,
+          "cash_withdrawal_share": 0.05,
+          "top_counterparty_share": 0.28
+        }
+      }
     },
     {
       "scenario": "REQUEST_INFO → документ → APPROVED",
@@ -80,7 +152,43 @@
           "role": "director",
           "can_sign": true
         }
-      ]
+      ],
+      "expected_outcome": "REQUEST_INFO",
+      "demo_request": {
+        "product": "express",
+        "requested_amount": 3000000,
+        "term_months": 12,
+        "purpose": "working_capital",
+        "collateral_value": 0
+      },
+      "sources": {
+        "egrul": {
+          "status": "ACTIVE",
+          "registration_date": "2015-03-20",
+          "okved": "41.20",
+          "director_changes_12m": 0,
+          "mass_address": false
+        },
+        "fns": {
+          "tax_arrears": true,
+          "arrears_amount": 184300
+        },
+        "bki": {
+          "bki_history_months": 90,
+          "max_overdue_days_12m": 0,
+          "overdue_count_24m": 0,
+          "credit_inquiries_3m": 1,
+          "existing_debt": 1200000,
+          "monthly_debt_payments": 110000
+        },
+        "statement": {
+          "avg_monthly_turnover": 5800000,
+          "turnover_volatility": 0.18,
+          "turnover_trend_12m": 0.09,
+          "cash_withdrawal_share": 0.04,
+          "top_counterparty_share": 0.22
+        }
+      }
     },
     {
       "scenario": "MANUAL_REVIEW → андеррайтер",
@@ -105,7 +213,43 @@
           "role": "owner",
           "can_sign": true
         }
-      ]
+      ],
+      "expected_outcome": "MANUAL_REVIEW",
+      "demo_request": {
+        "product": "express",
+        "requested_amount": 2000000,
+        "term_months": 24,
+        "purpose": "working_capital",
+        "collateral_value": 0
+      },
+      "sources": {
+        "egrul": {
+          "status": "ACTIVE",
+          "registration_date": "2018-06-01",
+          "okved": "49.41",
+          "director_changes_12m": 0,
+          "mass_address": true
+        },
+        "fns": {
+          "tax_arrears": false,
+          "arrears_amount": 0
+        },
+        "bki": {
+          "bki_history_months": 48,
+          "max_overdue_days_12m": 0,
+          "overdue_count_24m": 0,
+          "credit_inquiries_3m": 1,
+          "existing_debt": 600000,
+          "monthly_debt_payments": 45000
+        },
+        "statement": {
+          "avg_monthly_turnover": 1450000,
+          "turnover_volatility": 0.2,
+          "turnover_trend_12m": 0.07,
+          "cash_withdrawal_share": 0.09,
+          "top_counterparty_share": 0.24
+        }
+      }
     },
     {
       "scenario": "DECLINED → новая заявка",
@@ -130,7 +274,43 @@
           "role": "director",
           "can_sign": true
         }
-      ]
+      ],
+      "expected_outcome": "DECLINED",
+      "demo_request": {
+        "product": "express",
+        "requested_amount": 2500000,
+        "term_months": 12,
+        "purpose": "working_capital",
+        "collateral_value": 0
+      },
+      "sources": {
+        "egrul": {
+          "status": "ACTIVE",
+          "registration_date": "2016-11-03",
+          "okved": "56.10",
+          "director_changes_12m": 1,
+          "mass_address": false
+        },
+        "fns": {
+          "tax_arrears": false,
+          "arrears_amount": 0
+        },
+        "bki": {
+          "bki_history_months": 55,
+          "max_overdue_days_12m": 120,
+          "overdue_count_24m": 4,
+          "credit_inquiries_3m": 5,
+          "existing_debt": 3100000,
+          "monthly_debt_payments": 290000
+        },
+        "statement": {
+          "avg_monthly_turnover": 2300000,
+          "turnover_volatility": 0.41,
+          "turnover_trend_12m": -0.18,
+          "cash_withdrawal_share": 0.21,
+          "top_counterparty_share": 0.35
+        }
+      }
     }
   ]
 }

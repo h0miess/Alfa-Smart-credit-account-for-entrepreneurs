@@ -42,6 +42,7 @@ class Offer:
         term_months: int,
         rate: Decimal,
         today: date,
+        monthly_payment: Decimal | None = None,
     ) -> "Offer":
         amount = round_amount(amount)
         return cls(
@@ -51,7 +52,8 @@ class Offer:
             amount=amount,
             term_months=term_months,
             rate=rate,
-            monthly_payment=annuity_payment(amount, rate, term_months),
+            monthly_payment=monthly_payment
+            or annuity_payment(amount, rate, term_months),
             valid_until=today + OFFER_TTL,
             status=OfferStatus.ACTIVE,
         )

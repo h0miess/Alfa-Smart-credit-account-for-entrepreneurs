@@ -6,6 +6,12 @@ from fastapi import FastAPI
 
 from core.configs import settings
 from infra.http.scoring import HttpScoringGateway
+from infra.http.sources import (
+    HttpAbsGateway,
+    HttpBkiGateway,
+    HttpEgrulGateway,
+    HttpFnsGateway,
+)
 from infra.postgres.database import create_engine, create_sessionmaker
 from infra.postgres.mappings import start_mappers
 from infra.tasks.broker import broker
@@ -62,7 +68,15 @@ def create_app() -> FastAPI:
 async def worker_lifespan(app: FastAPI) -> AsyncIterator[None]:
     engine = create_engine(settings.postgres, settings.sql_engine)
     app.state.sessionmaker = create_sessionmaker(engine)
+    http_client = httpx.AsyncClient()
+    app.state.scoring = HttpScoringGateway(http_client, settings.scoring)
+    app.state.egrul = HttpEgrulGateway(http_client, settings.mocks)
+    app.state.fns = HttpFnsGateway(http_client, settings.mocks)
+    app.state.bki = HttpBkiGateway(http_client, settings.mocks)
+    app.state.abs = HttpAbsGateway(http_client, settings.mocks)
+    app.state.task_queue = TaskiqTaskQueue(broker)
     yield
+    await http_client.aclose()
     await engine.dispose()
 
 
