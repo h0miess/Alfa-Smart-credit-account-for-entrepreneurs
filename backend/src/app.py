@@ -7,6 +7,7 @@ from core.configs import settings
 from infra.postgres.database import create_engine, create_sessionmaker
 from presentation.api.auth.token import PyJWKClientCache
 from presentation.api.exceptions.handlers import setup_handlers
+from presentation.api.health import health_router
 from presentation.api.v1.routers import api_v1_router
 
 VERSION = "0.1.0"
@@ -38,8 +39,10 @@ def create_app() -> FastAPI:
         },
     )
 
+    app.include_router(health_router)
     app.include_router(api_v1_router)
 
     setup_handlers(app)
 
     return app
+
