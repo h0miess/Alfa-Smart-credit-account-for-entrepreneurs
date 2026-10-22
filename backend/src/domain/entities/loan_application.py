@@ -38,6 +38,7 @@ class LoanApplication:
         *,
         company_id: UUID,
         created_by: UUID,
+        actor_id: UUID,
         product: ProductCode,
         requested_amount: Decimal,
         term_months: int,
@@ -66,13 +67,15 @@ class LoanApplication:
             from_status=None,
             to_status=ApplicationStatus.DRAFT,
             actor=ActorType.CLIENT,
-            actor_id=created_by,
+            actor_id=actor_id,
             comment=None,
             at=at,
         )
         return application
 
-    def copy_as_draft(self, *, created_by: UUID, at: datetime) -> "LoanApplication":
+    def copy_as_draft(
+        self, *, created_by: UUID, actor_id: UUID, at: datetime
+    ) -> "LoanApplication":
         if self.status not in COPYABLE_STATUSES:
             raise ConflictError(
                 "Новую заявку на основе этой можно создать только после отказа "
@@ -81,6 +84,7 @@ class LoanApplication:
         return LoanApplication.create_draft(
             company_id=self.company_id,
             created_by=created_by,
+            actor_id=actor_id,
             product=self.product,
             requested_amount=self.requested_amount,
             term_months=self.term_months,

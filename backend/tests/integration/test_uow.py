@@ -7,10 +7,10 @@ from uuid import UUID
 
 import asyncpg
 import pytest
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from domain.entities.loan_application import LoanApplication
+from domain.exceptions.base import ConflictError
 from domain.products import LoanPurpose, ProductCode
 from domain.statuses import ApplicationStatus
 from infra.postgres.uow import APPLICATION_EVENTS_CHANNEL, SqlAlchemyUnitOfWork
@@ -24,6 +24,7 @@ def make_draft(product: ProductCode = ProductCode.EXPRESS) -> LoanApplication:
     return LoanApplication.create_draft(
         company_id=COMPANY_ID,
         created_by=REPRESENTATIVE_ID,
+        actor_id=REPRESENTATIVE_ID,
         product=product,
         requested_amount=Decimal("1500000"),
         term_months=12,
@@ -118,7 +119,7 @@ async def test_only_one_active_application_per_product(
         await uow.applications.add(make_draft(ProductCode.OVERDRAFT))
         await uow.commit()
 
-    with pytest.raises(IntegrityError):
+    with pytest.raises(ConflictError):
         async with SqlAlchemyUnitOfWork(sessionmaker) as uow:
             await uow.applications.add(make_draft())
 

@@ -5,6 +5,7 @@ from core.configs.auth import AuthSettings
 from core.configs.database import PostgresSettings, SQLEngineSettings
 from core.configs.redis import RedisSettings
 from core.configs.seed import SeedSettings
+from core.configs.services import MocksSettings, ScoringSettings
 
 
 class Settings(BaseSettings):
@@ -20,6 +21,8 @@ class Settings(BaseSettings):
     auth: AuthSettings
     redis: RedisSettings = RedisSettings()
     seed: SeedSettings = SeedSettings()
+    scoring: ScoringSettings = ScoringSettings()
+    mocks: MocksSettings = MocksSettings()
 
 
 settings = Settings()

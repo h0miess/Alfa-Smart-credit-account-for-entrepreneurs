@@ -3,6 +3,7 @@ from datetime import date, datetime
 from uuid import UUID
 
 from sqlalchemy import exists, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from application.interfaces.repositories import (
@@ -27,6 +28,7 @@ from domain.entities.enrichment_snapshot import EnrichmentSnapshot
 from domain.entities.loan_application import LoanApplication
 from domain.entities.offer import Offer, OfferStatus
 from domain.entities.representative import Representative
+from domain.exceptions.base import ConflictError
 from domain.products import ProductCode
 from domain.statuses import TERMINAL_STATUSES, ApplicationStatus
 from infra.postgres.models import (
@@ -72,7 +74,12 @@ class SqlRepresentativeRepository(_SqlRepository, RepresentativeRepository):
 
 class SqlApplicationRepository(_SqlRepository, ApplicationRepository):
     async def add(self, application: LoanApplication) -> None:
-        await self._add(application)
+        try:
+            await self._add(application)
+        except IntegrityError as e:
+            raise ConflictError(
+                "У компании уже есть активная заявка на этот продукт"
+            ) from e
 
     async def get(
         self, application_id: UUID, *, for_update: bool = False
