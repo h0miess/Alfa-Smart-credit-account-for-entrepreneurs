@@ -1,5 +1,6 @@
-from collections.abc import AsyncIterator, Iterator
+from collections.abc import AsyncIterator, Callable, Iterator
 from pathlib import Path
+from uuid import UUID
 
 import httpx
 import pytest
@@ -17,10 +18,13 @@ from testcontainers.community.postgres import PostgresContainer
 
 from app import create_app
 from core.configs import settings
+from core.dependencies.auth import get_auth_service
+from domain.entities.user import UserRole
 from infra.postgres.database import create_sessionmaker
 from infra.postgres.mappings import start_mappers
 from infra.postgres.models import metadata
 from seed.loader import load_seed
+from tests.fakes import FakeAuthService, FakeScoringGateway, FakeTaskQueue
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
 
@@ -65,13 +69,31 @@ async def sessionmaker(
 
 
 @pytest.fixture
+def task_queue() -> FakeTaskQueue:
+    return FakeTaskQueue()
+
+
+@pytest.fixture
 async def app(
     sessionmaker: async_sessionmaker[AsyncSession],
+    task_queue: FakeTaskQueue,
 ) -> AsyncIterator[FastAPI]:
     app = create_app()
     async with app.router.lifespan_context(app):
         app.state.sessionmaker = sessionmaker
+        app.state.scoring = FakeScoringGateway()
+        app.state.task_queue = task_queue
         yield app
+
+
+@pytest.fixture
+def login(app: FastAPI) -> Callable[[UUID, UserRole], None]:
+    def login_as(user_id: UUID, role: UserRole = UserRole.CLIENT) -> None:
+        app.dependency_overrides[get_auth_service] = lambda: FakeAuthService(
+            user_id, role
+        )
+
+    return login_as
 
 
 @pytest.fixture

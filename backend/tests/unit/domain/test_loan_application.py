@@ -18,6 +18,7 @@ def make_draft() -> LoanApplication:
     return LoanApplication.create_draft(
         company_id=uuid4(),
         created_by=uuid4(),
+        actor_id=uuid4(),
         product=ProductCode.EXPRESS,
         requested_amount=Decimal("1500000"),
         term_months=12,
@@ -107,12 +108,12 @@ def test_only_draft_can_be_edited() -> None:
 def test_copy_only_after_decline_or_cancel() -> None:
     application = make_draft()
     with pytest.raises(ConflictError):
-        application.copy_as_draft(created_by=uuid4(), at=NOW)
+        application.copy_as_draft(created_by=uuid4(), actor_id=uuid4(), at=NOW)
 
     application.transition_to(
         ApplicationStatus.CANCELLED, actor=ActorType.CLIENT, actor_id=None, at=NOW
     )
-    copy = application.copy_as_draft(created_by=uuid4(), at=NOW)
+    copy = application.copy_as_draft(created_by=uuid4(), actor_id=uuid4(), at=NOW)
 
     assert copy.id != application.id
     assert copy.status is ApplicationStatus.DRAFT

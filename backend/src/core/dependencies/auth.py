@@ -7,6 +7,7 @@
 
 import logging
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import Depends, Request
 
@@ -37,3 +38,9 @@ def get_auth_service(
         return MockAuthService(settings.app)
 
     return KeycloakAuthService(logger, token_processor, settings.auth)
+
+
+async def get_current_user_id(
+    auth_service: Annotated[AuthService, Depends(get_auth_service)],
+) -> UUID:
+    return await auth_service.get_current_user_uuid()

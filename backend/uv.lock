@@ -282,6 +282,7 @@ dependencies = [
     { name = "taskiq" },
     { name = "taskiq-fastapi" },
     { name = "taskiq-redis" },
+    { name = "tenacity" },
     { name = "uvicorn", extra = ["standard"] },
 ]
 
@@ -307,6 +308,7 @@ requires-dist = [
     { name = "taskiq", specifier = ">=0.13,<1" },
     { name = "taskiq-fastapi", specifier = ">=0.5,<1" },
     { name = "taskiq-redis", specifier = ">=1.2,<2" },
+    { name = "tenacity", specifier = ">=9.1,<10" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.30,<1" },
 ]
 
@@ -1020,6 +1022,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/18/a8/c8968e6cbb0c0c36988824cd53729d26b98052e42e700cdd1fac85194a68/taskiq_redis-1.2.4.tar.gz", hash = "sha256:be7df97ea39f9572c5cdc15d6db0de0c8d78fa5d5b4db626f9673840383032ff", size = 15066, upload-time = "2026-09-28T15:36:25.524Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2b/4c/d969bea733f1450e05af8738fb0eaf843852932901598c959ec82200d746/taskiq_redis-1.2.4-py3-none-any.whl", hash = "sha256:76e3621517a3c285bc9b72830cb7fa065be8213c08033025b4b13401eec9268e", size = 20896, upload-time = "2026-09-28T15:36:24.377Z" },
+]
+
+[[package]]
+name = "tenacity"
+version = "9.2.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/82/9e/497c1c8ebe5a5b5d1d4a7511aea22c0bb1a97e3170d98abdef0e1b34265a/tenacity-9.2.1.tar.gz", hash = "sha256:a606b5c808d0cded4a359d5b9932d867ff2a6a6b64d37350260fd01bbdf83839", size = 58261, upload-time = "2026-10-07T12:13:01.633Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d6/26/1ff2b0721ac66a3ec5b1402b333110b352ab0a8724052ac279a7b82d40c4/tenacity-9.2.1-py3-none-any.whl", hash = "sha256:9e56f17539296baab7beabb08b92f6ee3d7be92d8be72d763360677c2ad6580e", size = 32310, upload-time = "2026-10-07T12:13:00.102Z" },
 ]
 
 [[package]]

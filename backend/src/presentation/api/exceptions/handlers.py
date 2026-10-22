@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse
 from starlette import status
 
 from application.exceptions.authorization import AuthorizationError
+from application.exceptions.external import ExternalServiceError
 from domain.exceptions.base import (
     AccessDeniedError,
     BusinessRuleViolationError,
@@ -31,6 +32,8 @@ _ERROR_STATUS_MAPPING: Final[Mapping[type[Exception], int]] = MappingProxyType(
         ConflictError: status.HTTP_409_CONFLICT,
         # 422
         BusinessRuleViolationError: status.HTTP_422_UNPROCESSABLE_CONTENT,
+        # 503
+        ExternalServiceError: status.HTTP_503_SERVICE_UNAVAILABLE,
     }
 )
 _MSG_INTERNAL_SERVER_ERROR: Final[str] = "Internal server error"
@@ -72,6 +75,7 @@ def build_exception_response(
     description = (
         str(exc)
         if status_code < status.HTTP_500_INTERNAL_SERVER_ERROR
+        or isinstance(exc, ExternalServiceError)
         else _MSG_INTERNAL_SERVER_ERROR
     )
     code = getattr(exc, "code", None)
