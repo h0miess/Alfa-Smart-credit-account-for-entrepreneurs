@@ -1,0 +1,16 @@
+[project]
+name = "credit-cabinet"
+version = "0.1.0"
+description = "Бэкенд умного кредитного кабинета предпринимателя: заявки, статусы, SSO"
+authors = [
+    { name = "Ivan Kurbatov", email = "ivankurbatov124@mail.ru" }
+]
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi>=0.115,<1",
+    "uvicorn[standard]>=0.30,<1",
+]
+
+[tool.uv]
+
+package = false
