@@ -3,6 +3,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from core.configs.app import AppSettings
 from core.configs.auth import AuthSettings
 from core.configs.database import PostgresSettings, SQLEngineSettings
+from core.configs.redis import RedisSettings
 
 
 class Settings(BaseSettings):
@@ -16,6 +17,7 @@ class Settings(BaseSettings):
     postgres: PostgresSettings
     sql_engine: SQLEngineSettings = SQLEngineSettings()
     auth: AuthSettings
+    redis: RedisSettings = RedisSettings()
 
 
 settings = Settings()

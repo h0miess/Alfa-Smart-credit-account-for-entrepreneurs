@@ -14,6 +14,9 @@ dependencies = [
     "pydantic-settings>=2.6,<3",
     "pyjwt[crypto]>=2.10,<3",
     "sqlalchemy[asyncio]>=2.0,<3",
+    "taskiq>=0.13,<1",
+    "taskiq-fastapi>=0.5,<1",
+    "taskiq-redis>=1.2,<2",
     "uvicorn[standard]>=0.30,<1",
 ]
 
