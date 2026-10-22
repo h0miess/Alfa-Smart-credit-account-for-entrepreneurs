@@ -1,0 +1,305 @@
+{
+  "model_version": "pd-smb-lgbm-20261022",
+  "trained_on": "2026-10-22",
+  "algorithm": "LightGBM GBDT, монотонные ограничения + изотоническая калибровка",
+  "target": "Дефолт (90+ дней просрочки) в течение 12 месяцев после выдачи",
+  "data": {
+    "source": "Синтетические заявки (credit_scoring.synth), реальных данных клиентов нет",
+    "dev_period": "2023-01 .. 2025-09",
+    "oot_period": "2025-10 .. 2026-06",
+    "n_train": 88431,
+    "n_valid": 29478,
+    "n_oot": 32091
+  },
+  "best_iteration": 794,
+  "params": {
+    "objective": "binary",
+    "learning_rate": 0.02,
+    "num_leaves": 7,
+    "min_data_in_leaf": 400,
+    "feature_fraction": 0.8,
+    "bagging_fraction": 0.8,
+    "bagging_freq": 1,
+    "lambda_l2": 5.0,
+    "monotone_constraints_method": "advanced",
+    "verbose": -1,
+    "seed": 42,
+    "num_threads": 0
+  },
+  "features": [
+    "legal_form",
+    "industry",
+    "product",
+    "region_tier",
+    "business_age_months",
+    "employees",
+    "log_revenue",
+    "turnover_volatility",
+    "turnover_trend_12m",
+    "net_margin",
+    "debt_service_ratio",
+    "debt_to_revenue",
+    "amount_to_turnover",
+    "collateral_coverage",
+    "bank_turnover_share",
+    "bki_history_months",
+    "max_overdue_days_12m",
+    "overdue_count_24m",
+    "credit_inquiries_3m",
+    "tax_arrears",
+    "mass_address",
+    "director_changes_12m",
+    "bank_client_months",
+    "cash_withdrawal_share",
+    "top_counterparty_share",
+    "term_months"
+  ],
+  "monotone_constraints": {
+    "legal_form": 0,
+    "industry": 0,
+    "product": 0,
+    "region_tier": 0,
+    "business_age_months": -1,
+    "employees": 0,
+    "log_revenue": 0,
+    "turnover_volatility": 1,
+    "turnover_trend_12m": -1,
+    "net_margin": -1,
+    "debt_service_ratio": 1,
+    "debt_to_revenue": 1,
+    "amount_to_turnover": 1,
+    "collateral_coverage": -1,
+    "bank_turnover_share": 0,
+    "bki_history_months": 0,
+    "max_overdue_days_12m": 1,
+    "overdue_count_24m": 1,
+    "credit_inquiries_3m": 1,
+    "tax_arrears": 1,
+    "mass_address": 1,
+    "director_changes_12m": 1,
+    "bank_client_months": -1,
+    "cash_withdrawal_share": 1,
+    "top_counterparty_share": 1,
+    "term_months": 0
+  },
+  "metrics": {
+    "train": {
+      "auc": 0.8465,
+      "gini": 0.6929,
+      "ks": 0.5365,
+      "pr_auc": 0.4358,
+      "brier": 0.05324,
+      "logloss": 0.19551,
+      "mean_pd": 0.0744,
+      "default_rate": 0.0752,
+      "n": 88431
+    },
+    "valid": {
+      "auc": 0.8403,
+      "gini": 0.6806,
+      "ks": 0.5233,
+      "pr_auc": 0.417,
+      "brier": 0.05405,
+      "logloss": 0.19825,
+      "mean_pd": 0.0752,
+      "default_rate": 0.0752,
+      "n": 29478
+    },
+    "oot": {
+      "auc": 0.8433,
+      "gini": 0.6866,
+      "ks": 0.5354,
+      "pr_auc": 0.4156,
+      "brier": 0.05737,
+      "logloss": 0.20737,
+      "mean_pd": 0.0749,
+      "default_rate": 0.0795,
+      "n": 32091
+    },
+    "oot_baseline_logreg": {
+      "auc": 0.8387,
+      "gini": 0.6775,
+      "ks": 0.5228,
+      "pr_auc": 0.4198,
+      "brier": 0.05799,
+      "logloss": 0.20998,
+      "mean_pd": 0.0756,
+      "default_rate": 0.0795,
+      "n": 32091
+    }
+  },
+  "oracle_oot_gini": 0.7183,
+  "oracle_note": "Gini «истинного» PD синтетического генератора — теоретический потолок качества",
+  "stability": {
+    "psi_score_dev_vs_oot": 0.0002,
+    "psi_note": "PSI < 0.1 — стабильно, 0.1-0.25 — умеренный сдвиг, > 0.25 — пересмотр модели"
+  },
+  "grades_oot": [
+    {
+      "grade": "A",
+      "pd_range": [
+        0.0,
+        0.02
+      ],
+      "share": 0.3216,
+      "mean_pd": 0.0107,
+      "observed_dr": 0.0109,
+      "n": 10321
+    },
+    {
+      "grade": "B",
+      "pd_range": [
+        0.02,
+        0.04
+      ],
+      "share": 0.2095,
+      "mean_pd": 0.0257,
+      "observed_dr": 0.0262,
+      "n": 6724
+    },
+    {
+      "grade": "C",
+      "pd_range": [
+        0.04,
+        0.08
+      ],
+      "share": 0.2611,
+      "mean_pd": 0.0552,
+      "observed_dr": 0.0592,
+      "n": 8378
+    },
+    {
+      "grade": "D",
+      "pd_range": [
+        0.08,
+        0.15
+      ],
+      "share": 0.0946,
+      "mean_pd": 0.1151,
+      "observed_dr": 0.136,
+      "n": 3037
+    },
+    {
+      "grade": "E",
+      "pd_range": [
+        0.15,
+        1.0
+      ],
+      "share": 0.1131,
+      "mean_pd": 0.36,
+      "observed_dr": 0.3729,
+      "n": 3631
+    }
+  ],
+  "feature_importance": [
+    {
+      "feature": "debt_service_ratio",
+      "gain_share": 0.2853
+    },
+    {
+      "feature": "turnover_trend_12m",
+      "gain_share": 0.0906
+    },
+    {
+      "feature": "overdue_count_24m",
+      "gain_share": 0.0816
+    },
+    {
+      "feature": "net_margin",
+      "gain_share": 0.0759
+    },
+    {
+      "feature": "turnover_volatility",
+      "gain_share": 0.0741
+    },
+    {
+      "feature": "credit_inquiries_3m",
+      "gain_share": 0.0712
+    },
+    {
+      "feature": "business_age_months",
+      "gain_share": 0.062
+    },
+    {
+      "feature": "max_overdue_days_12m",
+      "gain_share": 0.0573
+    },
+    {
+      "feature": "debt_to_revenue",
+      "gain_share": 0.0421
+    },
+    {
+      "feature": "tax_arrears",
+      "gain_share": 0.0418
+    },
+    {
+      "feature": "cash_withdrawal_share",
+      "gain_share": 0.0356
+    },
+    {
+      "feature": "collateral_coverage",
+      "gain_share": 0.0152
+    },
+    {
+      "feature": "industry",
+      "gain_share": 0.0146
+    },
+    {
+      "feature": "bank_client_months",
+      "gain_share": 0.0113
+    },
+    {
+      "feature": "top_counterparty_share",
+      "gain_share": 0.0096
+    },
+    {
+      "feature": "bki_history_months",
+      "gain_share": 0.0077
+    },
+    {
+      "feature": "mass_address",
+      "gain_share": 0.005
+    },
+    {
+      "feature": "log_revenue",
+      "gain_share": 0.0042
+    },
+    {
+      "feature": "director_changes_12m",
+      "gain_share": 0.0031
+    },
+    {
+      "feature": "region_tier",
+      "gain_share": 0.003
+    },
+    {
+      "feature": "bank_turnover_share",
+      "gain_share": 0.003
+    },
+    {
+      "feature": "product",
+      "gain_share": 0.002
+    },
+    {
+      "feature": "amount_to_turnover",
+      "gain_share": 0.0014
+    },
+    {
+      "feature": "term_months",
+      "gain_share": 0.0013
+    },
+    {
+      "feature": "employees",
+      "gain_share": 0.001
+    },
+    {
+      "feature": "legal_form",
+      "gain_share": 0.0001
+    }
+  ],
+  "limitations": [
+    "Обучена на синтетике: метрики показывают, что пайплайн восстанавливает заложенную зависимость, а не реальное качество на портфеле банка.",
+    "Для промышленного использования нужно переобучение на исторических заявках и валидация независимым подразделением.",
+    "Скоринг — только оценка риска; итоговое решение принимает кредитная политика (decision.py) и, при необходимости, андеррайтер."
+  ]
+}
