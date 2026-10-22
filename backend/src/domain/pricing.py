@@ -5,8 +5,6 @@ from typing import Final
 
 from domain.outcomes import Grade
 
-# Копия политики ml/src/credit_scoring/decision.py: GRADE_SPREAD и rate_for.
-# Пока в ml нет /v1/quote, совпадение проверяет контрактный тест.
 GRADE_SPREAD: Final[Mapping[Grade, Decimal]] = MappingProxyType(
     {
         Grade.A: Decimal("3.0"),
@@ -46,5 +44,4 @@ def overpayment(
 
 
 def round_amount(amount: Decimal) -> Decimal:
-    """Суммы офферов кратны 10 000 ₽, как в ml."""
     return (amount // 10_000) * 10_000

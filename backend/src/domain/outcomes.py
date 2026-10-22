@@ -22,7 +22,6 @@ class Grade(StrEnum):
     E = "E"
 
 
-# Таблица process.md §5, сверяется тестом
 OUTCOME_TO_STATUS: Final[Mapping[ScoringOutcome, ApplicationStatus]] = MappingProxyType(
     {
         ScoringOutcome.APPROVED: ApplicationStatus.OFFERED,

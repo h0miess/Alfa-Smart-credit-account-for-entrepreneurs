@@ -205,6 +205,7 @@ erDiagram
     DECISION ||--o| OFFER : "условия"
     OFFER ||--o| CONTRACT : "договор"
     CONTRACT ||--o| DISBURSEMENT : "выдача"
+    DECISION ||--o{ ENRICHMENT_SNAPSHOT : "входные данные"
 
     COMPANY {
         uuid id
@@ -217,10 +218,14 @@ erDiagram
         date registered_at
         int employees
         date bank_client_since
+        decimal annual_revenue
+        decimal net_margin
+        string settlement_account
     }
     REPRESENTATIVE {
         uuid id
         uuid company_id
+        uuid keycloak_user_id
         string full_name
         string role "owner | director | accountant | employee"
         bool can_sign
@@ -234,10 +239,12 @@ erDiagram
         int term_months
         string purpose
         decimal collateral_value
+        string collateral_description
         string status
         timestamp consent_at
         timestamp created_at
         timestamp updated_at
+        timestamp status_changed_at
     }
     APPLICATION_EVENT {
         uuid id
@@ -245,6 +252,7 @@ erDiagram
         string from_status
         string to_status
         string actor "client | system | underwriter"
+        uuid actor_id
         string comment
         timestamp at
     }
@@ -254,6 +262,7 @@ erDiagram
         string source "egrul | fns | bki | statement"
         json payload
         timestamp fetched_at
+        uuid decision_id
     }
     DECISION {
         uuid id
@@ -265,9 +274,15 @@ erDiagram
         decimal max_amount
         json reasons
         json risk_factors
+        json positive_factors
+        json requested_documents
         string decided_by "system | underwriter"
+        uuid decided_by_user_id
         string model_version
         string policy_version
+        json request_payload
+        json raw_response
+        string comment
         timestamp at
     }
     OFFER {
@@ -285,23 +300,54 @@ erDiagram
         uuid id
         uuid application_id
         string kind
+        string reason_code
         string file_ref
+        string file_name
+        string content_type
+        int size_bytes
+        string status
+        json extracted
         timestamp uploaded_at
     }
     CONTRACT {
         uuid id
         uuid offer_id
+        decimal amount
+        int term_months
+        decimal rate
+        decimal monthly_payment
+        timestamp created_at
         uuid signed_by
         timestamp signed_at
+        string sign_code_hash
+        timestamp sign_code_expires_at
     }
     DISBURSEMENT {
         uuid id
         uuid contract_id
         decimal amount
         string account
+        string external_id
         timestamp at
     }
 ```
+
+Поля, добавленные при реализации бэкенда:
+
+| Сущность | Поля | Зачем |
+|---|---|---|
+| COMPANY | `annual_revenue`, `net_margin`, `settlement_account` | признаки скоринга «из профиля» и счёт для зачисления |
+| REPRESENTATIVE | `keycloak_user_id` | связь пользователя SSO с представителем и компанией |
+| APPLICATION | `collateral_description`, `status_changed_at` | описание залога для андеррайтера; срок в статусе и поиск зависших заявок |
+| APPLICATION_EVENT | `actor_id` | «кто» — конкретный пользователь, а не только тип участника |
+| ENRICHMENT_SNAPSHOT | `decision_id` | какие снимки ушли в какое решение |
+| DECISION | `positive_factors`, `requested_documents`, `decided_by_user_id`, `request_payload`, `raw_response`, `comment` | запрос и ответ хранятся целиком, поэтому решение можно воспроизвести |
+| DOCUMENT | `reason_code`, `file_name`, `content_type`, `size_bytes`, `status`, `extracted` | какой дозапрос закрывает документ и какие данные из него взяты |
+| CONTRACT | `amount`, `term_months`, `rate`, `monthly_payment`, `created_at`, `sign_code_hash`, `sign_code_expires_at` | копия условий оффера для сверки при подписании; код подписи |
+| DISBURSEMENT | `external_id` | номер операции в АБС: повтор не создаёт второго зачисления |
+
+Ограничения в БД: одна активная заявка на компанию и продукт (частичный уникальный индекс);
+`OFFER.decision_id`, `CONTRACT.offer_id` и `DISBURSEMENT.contract_id` уникальны.
 
 Откуда берутся признаки скоринга:
 

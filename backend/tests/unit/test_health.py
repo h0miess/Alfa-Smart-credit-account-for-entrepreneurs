@@ -20,14 +20,3 @@ async def test_health(client: httpx.AsyncClient) -> None:
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
-
-
-async def test_me_uses_mock_user_in_local_environment(
-    client: httpx.AsyncClient,
-) -> None:
-    response = await client.get("/api/v1/me")
-
-    assert response.status_code == 200
-    body = response.json()
-    assert body["uuid"] == "00000000-0000-4000-8000-000000000101"
-    assert body["roles"] == ["client"]

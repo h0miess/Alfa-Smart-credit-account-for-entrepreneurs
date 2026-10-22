@@ -10,7 +10,12 @@ from fastapi.responses import JSONResponse
 from starlette import status
 
 from application.exceptions.authorization import AuthorizationError
-from domain.exceptions.base import AccessDeniedError
+from domain.exceptions.base import (
+    AccessDeniedError,
+    BusinessRuleViolationError,
+    ConflictError,
+    NotFoundError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +25,12 @@ _ERROR_STATUS_MAPPING: Final[Mapping[type[Exception], int]] = MappingProxyType(
         AuthorizationError: status.HTTP_401_UNAUTHORIZED,
         # 403
         AccessDeniedError: status.HTTP_403_FORBIDDEN,
+        # 404
+        NotFoundError: status.HTTP_404_NOT_FOUND,
+        # 409
+        ConflictError: status.HTTP_409_CONFLICT,
+        # 422
+        BusinessRuleViolationError: status.HTTP_422_UNPROCESSABLE_CONTENT,
     }
 )
 _MSG_INTERNAL_SERVER_ERROR: Final[str] = "Internal server error"

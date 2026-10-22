@@ -15,5 +15,6 @@ os.environ.update(
         "AUTH__KEYCLOAK__CLIENT_ID": "credit-cabinet-web",
         "AUTH__JWT__ISSUER": "http://keycloak.test/realms/alfa-credit",
         "REDIS__HOST": "localhost",
+        "TESTCONTAINERS_RYUK_DISABLED": "true",
     }
 )

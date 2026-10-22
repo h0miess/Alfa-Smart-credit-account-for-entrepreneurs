@@ -131,8 +131,10 @@ services:
   credit-migrate:
     <<: *backend
     container_name: credit-migrate
-    command: alembic upgrade head
+    command: sh -c "alembic upgrade head && python -m seed"
     restart: "no"
+    volumes:
+      - ./seed:/seed:ro
     healthcheck:
       disable: true
     depends_on:

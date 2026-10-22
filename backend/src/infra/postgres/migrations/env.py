@@ -33,7 +33,7 @@ def do_run_migrations(connection: Connection) -> None:
         context.run_migrations()
 
 
-async def run_migrations_online() -> None:
+async def run_async_migrations() -> None:
     engine = create_async_engine(settings.postgres.url)
 
     async with engine.connect() as connection:
@@ -42,7 +42,15 @@ async def run_migrations_online() -> None:
     await engine.dispose()
 
 
+def run_migrations_online() -> None:
+    connection = config.attributes.get("connection")
+    if connection is not None:
+        do_run_migrations(connection)
+    else:
+        asyncio.run(run_async_migrations())
+
+
 if context.is_offline_mode():
     run_migrations_offline()
 else:
-    asyncio.run(run_migrations_online())
+    run_migrations_online()
