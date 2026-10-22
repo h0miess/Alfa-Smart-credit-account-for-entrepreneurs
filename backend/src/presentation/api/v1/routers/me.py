@@ -43,5 +43,5 @@ async def get_me(
         first_name=user_info.first_name,
         last_name=user_info.last_name,
         email=user_info.email,
-        roles=sorted(auth_service.get_current_user_roles()),
+        roles=sorted(await auth_service.get_current_user_roles()),
     )

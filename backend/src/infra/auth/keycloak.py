@@ -23,18 +23,18 @@ class KeycloakAuthService(AuthService):
         self._token_processor = token_processor
         self._settings = settings
 
-    def get_current_user_uuid(self) -> UUID:
+    async def get_current_user_uuid(self) -> UUID:
         self._logger.debug("Получение UUID текущего пользователя")
-        user_uuid = self._token_processor.get_user_uuid()
+        user_uuid = await self._token_processor.get_user_uuid()
         self._logger.debug(
             "Получен UUID текущего пользователя {user_uuid=%s}",
             user_uuid,
         )
         return user_uuid
 
-    def get_current_user_roles(self) -> frozenset[UserRole]:
+    async def get_current_user_roles(self) -> frozenset[UserRole]:
         self._logger.debug("Получение ролей текущего пользователя")
-        token_context = self._token_processor.get_token_context()
+        token_context = await self._token_processor.get_token_context()
 
         # в токене есть и служебные роли Keycloak (offline_access, default-roles-*),
         # оставляем только роли приложения
@@ -50,7 +50,7 @@ class KeycloakAuthService(AuthService):
 
     async def get_user_info(self) -> UserInfo:
         self._logger.debug("Получение информации о текущем пользователе из Keycloak")
-        token_context = self._token_processor.get_token_context()
+        token_context = await self._token_processor.get_token_context()
 
         try:
             user_info = await self._get_keycloak_user_info(token_context.token)
@@ -103,10 +103,10 @@ class MockAuthService(AuthService):
         assert settings.MOCK_USER_UUID, "проверяется валидатором AppSettings"
         self._mock_user_uuid = settings.MOCK_USER_UUID
 
-    def get_current_user_uuid(self) -> UUID:
+    async def get_current_user_uuid(self) -> UUID:
         return self._mock_user_uuid
 
-    def get_current_user_roles(self) -> frozenset[UserRole]:
+    async def get_current_user_roles(self) -> frozenset[UserRole]:
         # заглушка обладает всеми ролями, чтобы локально были доступны все разделы
         return frozenset(UserRole)
 

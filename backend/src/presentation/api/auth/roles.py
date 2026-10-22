@@ -17,7 +17,8 @@ def require_role(*roles: UserRole) -> Any:
     async def check_role(
         auth_service: Annotated[AuthService, Depends(get_auth_service)],
     ) -> None:
-        if not auth_service.get_current_user_roles() & set(roles):
+        user_roles = await auth_service.get_current_user_roles()
+        if not user_roles & set(roles):
             raise AccessDeniedError()
 
     return Depends(check_role)
