@@ -1,5 +1,11 @@
 name: alfa-credit
 
+x-backend: &backend
+  build: ./backend
+  image: alfa-credit-backend
+  env_file: ./.env
+  restart: unless-stopped
+
 services:
 
   credit-postgres:
@@ -56,21 +62,132 @@ services:
       retries: 10
       start_period: 30s
 
-  credit-backend:
-    build: ./backend
-    container_name: credit-backend
-    env_file: ./.env
-    command: "uvicorn main:app --host 0.0.0.0 --port 8000 --reload --reload-dir src"
+  credit-redis:
+    image: redis:8.8.3-alpine
+    container_name: credit-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - credit_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  credit-minio:
+    image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z
+    container_name: credit-minio
+    command: server /data --console-address ":9001"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: "minioadmin"
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    volumes:
+      - credit_minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  credit-ml:
+    build: ./ml
+    container_name: credit-ml
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+    environment:
+      KEY_RATE: "16.0"
+    ports:
+      - "127.0.0.1:8001:8000"
+
+  credit-mocks:
+    build: ./mocks
+    container_name: credit-mocks
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    ports:
+      - "127.0.0.1:8002:8000"
+
+  credit-migrate:
+    <<: *backend
+    container_name: credit-migrate
+    command: alembic upgrade head
+    restart: "no"
+    healthcheck:
+      disable: true
     depends_on:
       credit-postgres:
         condition: service_healthy
+
+  credit-backend:
+    <<: *backend
+    container_name: credit-backend
+    depends_on:
+      credit-migrate:
+        condition: service_completed_successfully
       credit-keycloak:
+        condition: service_healthy
+      credit-redis:
+        condition: service_healthy
+      credit-minio:
+        condition: service_healthy
+      credit-ml:
+        condition: service_healthy
+      credit-mocks:
         condition: service_healthy
     ports:
       - "127.0.0.1:8000:8000"
-    volumes:
-      - ./backend/src:/app/src
+
+  credit-worker:
+    <<: *backend
+    container_name: credit-worker
+    command: taskiq worker infra.tasks.broker:broker presentation.worker.tasks --workers 2
+    healthcheck:
+      disable: true
+    depends_on:
+      credit-migrate:
+        condition: service_completed_successfully
+      credit-redis:
+        condition: service_healthy
+      credit-ml:
+        condition: service_healthy
+      credit-mocks:
+        condition: service_healthy
+
+  credit-scheduler:
+    <<: *backend
+    container_name: credit-scheduler
+    command: taskiq scheduler infra.tasks.broker:scheduler presentation.worker.tasks
+    healthcheck:
+      disable: true
+    depends_on:
+      credit-migrate:
+        condition: service_completed_successfully
+      credit-redis:
+        condition: service_healthy
 
 volumes:
   credit_postgres_data:
   credit_keycloak_data:
+  credit_redis_data:
+  credit_minio_data:
