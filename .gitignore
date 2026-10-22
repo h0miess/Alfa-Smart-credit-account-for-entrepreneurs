@@ -249,4 +249,5 @@ pnpm-debug.log*
 # Local environment overrides; keep example configuration available
 .env.*
 !.env.example
+!.env.test
 !.env.*.example
