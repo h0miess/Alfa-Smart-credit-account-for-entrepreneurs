@@ -1,0 +1,136 @@
+{
+  "companies": [
+    {
+      "scenario": "APPROVED → ISSUED",
+      "id": "00000000-0000-4000-8000-000000000201",
+      "legal_form": "IP",
+      "inn": "772814539067",
+      "ogrn": "319774600284511",
+      "name": "ИП Иванов Иван Иванович",
+      "industry": "trade",
+      "region_tier": 1,
+      "registered_at": "2019-04-15",
+      "employees": 6,
+      "bank_client_since": "2019-05-06",
+      "annual_revenue": 26400000,
+      "net_margin": 0.14,
+      "settlement_account": "40802810400000012345",
+      "representatives": [
+        {
+          "id": "00000000-0000-4000-8000-000000000301",
+          "keycloak_user_id": "00000000-0000-4000-8000-000000000101",
+          "full_name": "Иванов Иван Иванович",
+          "role": "owner",
+          "can_sign": true
+        }
+      ]
+    },
+    {
+      "scenario": "COUNTER_OFFER",
+      "id": "00000000-0000-4000-8000-000000000202",
+      "legal_form": "OOO",
+      "inn": "7701846322",
+      "ogrn": "1177746391820",
+      "name": "ООО «Ромашка»",
+      "industry": "manufacturing",
+      "region_tier": 1,
+      "registered_at": "2017-09-12",
+      "employees": 24,
+      "bank_client_since": "2018-02-01",
+      "annual_revenue": 54000000,
+      "net_margin": 0.09,
+      "settlement_account": "40702810900000054321",
+      "representatives": [
+        {
+          "id": "00000000-0000-4000-8000-000000000302",
+          "keycloak_user_id": "00000000-0000-4000-8000-000000000102",
+          "full_name": "Ромашкина Ольга Сергеевна",
+          "role": "director",
+          "can_sign": true
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000303",
+          "keycloak_user_id": "00000000-0000-4000-8000-000000000103",
+          "full_name": "Счётова Марина Павловна",
+          "role": "accountant",
+          "can_sign": false
+        }
+      ]
+    },
+    {
+      "scenario": "REQUEST_INFO → документ → APPROVED",
+      "id": "00000000-0000-4000-8000-000000000203",
+      "legal_form": "OOO",
+      "inn": "5406723981",
+      "ogrn": "1155476038291",
+      "name": "ООО «Вектор»",
+      "industry": "construction",
+      "region_tier": 2,
+      "registered_at": "2015-03-20",
+      "employees": 31,
+      "bank_client_since": "2016-01-15",
+      "annual_revenue": 72000000,
+      "net_margin": 0.1,
+      "settlement_account": "40702810600000067890",
+      "representatives": [
+        {
+          "id": "00000000-0000-4000-8000-000000000304",
+          "keycloak_user_id": "00000000-0000-4000-8000-000000000104",
+          "full_name": "Векторов Виктор Андреевич",
+          "role": "director",
+          "can_sign": true
+        }
+      ]
+    },
+    {
+      "scenario": "MANUAL_REVIEW → андеррайтер",
+      "id": "00000000-0000-4000-8000-000000000204",
+      "legal_form": "IP",
+      "inn": "663205817446",
+      "ogrn": "318665800117432",
+      "name": "ИП Петров Пётр Николаевич",
+      "industry": "transport",
+      "region_tier": 2,
+      "registered_at": "2018-06-01",
+      "employees": 4,
+      "bank_client_since": "2018-07-10",
+      "annual_revenue": 18000000,
+      "net_margin": 0.11,
+      "settlement_account": "40802810100000098765",
+      "representatives": [
+        {
+          "id": "00000000-0000-4000-8000-000000000305",
+          "keycloak_user_id": "00000000-0000-4000-8000-000000000105",
+          "full_name": "Петров Пётр Николаевич",
+          "role": "owner",
+          "can_sign": true
+        }
+      ]
+    },
+    {
+      "scenario": "DECLINED → новая заявка",
+      "id": "00000000-0000-4000-8000-000000000205",
+      "legal_form": "OOO",
+      "inn": "7810492265",
+      "ogrn": "1167847215593",
+      "name": "ООО «Дельта»",
+      "industry": "food_service",
+      "region_tier": 1,
+      "registered_at": "2016-11-03",
+      "employees": 15,
+      "bank_client_since": "2017-03-01",
+      "annual_revenue": 30000000,
+      "net_margin": 0.05,
+      "settlement_account": "40702810300000011223",
+      "representatives": [
+        {
+          "id": "00000000-0000-4000-8000-000000000306",
+          "keycloak_user_id": "00000000-0000-4000-8000-000000000106",
+          "full_name": "Дельцов Денис Игоревич",
+          "role": "director",
+          "can_sign": true
+        }
+      ]
+    }
+  ]
+}

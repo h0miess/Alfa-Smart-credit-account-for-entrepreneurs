@@ -1,5 +1,3 @@
-"""Код повторяет process.md буквально: при расхождении падает тест, а не проверка жюри."""
-
 import re
 
 from domain.outcomes import OUTCOME_TO_STATUS, ScoringOutcome

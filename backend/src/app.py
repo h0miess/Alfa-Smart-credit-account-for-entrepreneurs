@@ -5,6 +5,7 @@ from fastapi import FastAPI
 
 from core.configs import settings
 from infra.postgres.database import create_engine, create_sessionmaker
+from infra.postgres.mappings import start_mappers
 from presentation.api.auth.token import PyJWKClientCache
 from presentation.api.exceptions.handlers import setup_handlers
 from presentation.api.health import health_router
@@ -25,6 +26,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 def create_app() -> FastAPI:
+    start_mappers()
     app = FastAPI(
         title="Умный кредитный кабинет предпринимателя",
         version=VERSION,
@@ -56,5 +58,5 @@ async def worker_lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 def create_worker_app() -> FastAPI:
-    """Приложение для воркера Taskiq: те же зависимости, но без HTTP-роутов."""
+    start_mappers()
     return FastAPI(lifespan=worker_lifespan)

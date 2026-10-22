@@ -24,7 +24,6 @@ class DocumentRequest:
     title: str
 
 
-# Дозапросы из ml/src/credit_scoring/decision.py → какой документ их закрывает
 DOCUMENT_REQUESTS: Final[Mapping[str, DocumentRequest]] = MappingProxyType(
     {
         request.reason_code: request

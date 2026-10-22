@@ -22,7 +22,6 @@ class ApplicationStatus(StrEnum):
 
 _S = ApplicationStatus
 
-# Диаграмма process.md §4 без отклонений, сверяется тестом
 TRANSITIONS: Final[Mapping[ApplicationStatus, frozenset[ApplicationStatus]]] = (
     MappingProxyType(
         {
@@ -60,7 +59,6 @@ class StatusView:
     eta_text: str | None
 
 
-# Тексты из таблицы «Что видит клиент» process.md §4
 STATUS_VIEW: Final[Mapping[ApplicationStatus, StatusView]] = MappingProxyType(
     {
         view.code: view
