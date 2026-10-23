@@ -1,0 +1,28 @@
+meta {
+  name: Загрузить справку ФНС
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/v1/applications/{{applicationId}}/documents
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+body:multipart-form {
+  reason_code: INFO_TAX_ARREARS
+  file: @file(files/spravka.pdf)
+}
+
+vars:post-response {
+  documentId: res.body.id
+}
+
+assert {
+  res.status: eq 201
+}

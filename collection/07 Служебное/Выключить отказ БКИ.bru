@@ -1,0 +1,21 @@
+meta {
+  name: Выключить отказ БКИ
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{mocksUrl}}/admin/failures/bki
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "mode": "off"
+  }
+}
+
+assert {
+  res.status: eq 200
+}

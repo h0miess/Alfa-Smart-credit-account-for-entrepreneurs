@@ -1,0 +1,25 @@
+meta {
+  name: Подписать договор
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api/v1/applications/{{applicationId}}/contract/sign
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{signerToken}}
+}
+
+body:json {
+  {
+    "code": "{{signCode}}"
+  }
+}
+
+assert {
+  res.status: eq 200
+}

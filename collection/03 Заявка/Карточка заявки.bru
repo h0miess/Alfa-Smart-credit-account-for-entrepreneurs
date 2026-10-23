@@ -1,0 +1,23 @@
+meta {
+  name: Карточка заявки
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/v1/applications/{{applicationId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  После отправки решение приходит за секунды: повторите запрос или откройте поток статуса.
+}

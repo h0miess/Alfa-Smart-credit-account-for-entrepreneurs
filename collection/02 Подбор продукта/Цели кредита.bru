@@ -1,0 +1,19 @@
+meta {
+  name: Цели кредита
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/v1/purposes
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+assert {
+  res.status: eq 200
+}

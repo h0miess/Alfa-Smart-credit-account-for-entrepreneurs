@@ -1,0 +1,23 @@
+meta {
+  name: Очередь ручной проверки
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/underwriter/queue
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{underwriterToken}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:post-response {
+  if (res.body.length) { bru.setVar("reviewId", res.body[0].id); }
+}

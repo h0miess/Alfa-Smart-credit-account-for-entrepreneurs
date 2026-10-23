@@ -38,13 +38,23 @@ migrate:
 	$(COMPOSE) run --rm credit-migrate
 
 
-.PHONY: lint test
+.PHONY: lint test test_contract test_e2e openapi
 
 lint:
-	cd backend && uv run ruff check src tests && uv run ruff format --check src tests && uv run mypy src
+	cd backend && uv run ruff check src tests scripts && uv run ruff format --check src tests scripts && uv run mypy src
+	cd mocks && ../backend/.venv/bin/ruff check src && ../backend/.venv/bin/ruff format --check src
 
 test:
 	cd backend && uv run pytest
+
+test_contract:
+	cd backend && ML_URL=http://localhost:8001 uv run pytest -m contract
+
+test_e2e:
+	cd backend && E2E_API_URL=http://localhost:8000 uv run pytest -m e2e
+
+openapi:
+	cd backend && PYTHONPATH=src uv run python scripts/export_openapi.py ../docs/openapi.json
 
 
 .PHONY: help
@@ -64,5 +74,8 @@ help:
 	@echo "  migrate          Применение миграций БД"
 	@echo ""
 	@echo "Разработка:"
-	@echo "  lint             ruff и mypy для backend"
-	@echo "  test             Тесты backend (интеграционным нужен Docker)"
+	@echo "  lint             ruff и mypy для backend и mocks"
+	@echo "  test             Юнит- и интеграционные тесты backend (нужен Docker)"
+	@echo "  test_contract    Контрактные тесты против запущенного ml"
+	@echo "  test_e2e         Сквозные сценарии против поднятого compose"
+	@echo "  openapi          Экспорт docs/openapi.json"

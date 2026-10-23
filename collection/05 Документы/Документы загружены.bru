@@ -1,0 +1,19 @@
+meta {
+  name: Документы загружены
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/v1/applications/{{applicationId}}/documents/complete
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+assert {
+  res.status: eq 200
+}

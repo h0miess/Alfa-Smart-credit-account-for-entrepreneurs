@@ -1,0 +1,20 @@
+meta {
+  name: Поток статуса (SSE)
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/v1/applications/{{applicationId}}/stream
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+docs {
+  Server-Sent Events: первым событием приходит текущий статус, дальше каждое изменение.
+  Удобнее открыть через curl -N с заголовком Authorization.
+}

@@ -1,0 +1,19 @@
+meta {
+  name: Скачать документ
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/v1/applications/{{applicationId}}/documents/{{documentId}}/file
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+assert {
+  res.status: eq 200
+}

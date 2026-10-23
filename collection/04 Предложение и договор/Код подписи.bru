@@ -1,0 +1,27 @@
+meta {
+  name: Код подписи
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/v1/applications/{{applicationId}}/contract/sign-code
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{signerToken}}
+}
+
+vars:post-response {
+  signCode: res.body.code
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  Код показывается в интерфейсе, SMS не отправляется. Подписать может только руководитель.
+}

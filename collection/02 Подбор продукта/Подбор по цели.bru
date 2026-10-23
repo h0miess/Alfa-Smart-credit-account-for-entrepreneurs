@@ -1,0 +1,27 @@
+meta {
+  name: Подбор по цели
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/v1/products/recommend
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+body:json {
+  {
+    "purpose": "working_capital",
+    "amount": 1500000,
+    "term_months": 12
+  }
+}
+
+assert {
+  res.status: eq 200
+}

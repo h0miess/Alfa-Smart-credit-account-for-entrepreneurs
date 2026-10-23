@@ -1,0 +1,27 @@
+meta {
+  name: Отказать
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api/v1/underwriter/applications/{{reviewId}}/decision
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{underwriterToken}}
+}
+
+body:json {
+  {
+    "action": "decline",
+    "reason": "Не подтверждён фактический адрес ведения бизнеса",
+    "comment": "Выезд не подтвердил адрес"
+  }
+}
+
+assert {
+  res.status: eq 200
+}

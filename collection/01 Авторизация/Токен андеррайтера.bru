@@ -1,0 +1,27 @@
+meta {
+  name: Токен андеррайтера
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{keycloakUrl}}/realms/alfa-credit/protocol/openid-connect/token
+  body: formUrlEncoded
+  auth: none
+}
+
+body:form-urlencoded {
+  client_id: credit-cabinet-web
+  grant_type: password
+  username: underwriter
+  password: {{password}}
+  scope: openid
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:post-response {
+  bru.setVar("underwriterToken", res.body.access_token);
+}

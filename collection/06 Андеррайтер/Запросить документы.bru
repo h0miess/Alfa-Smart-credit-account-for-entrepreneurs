@@ -1,0 +1,27 @@
+meta {
+  name: Запросить документы
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/v1/underwriter/applications/{{reviewId}}/decision
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{underwriterToken}}
+}
+
+body:json {
+  {
+    "action": "request_info",
+    "documents": ["collateral_info"],
+    "comment": "Нужен залог"
+  }
+}
+
+assert {
+  res.status: eq 200
+}

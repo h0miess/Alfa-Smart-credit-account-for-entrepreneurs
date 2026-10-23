@@ -1,0 +1,19 @@
+meta {
+  name: Мои заявки
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/v1/applications
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+assert {
+  res.status: eq 200
+}

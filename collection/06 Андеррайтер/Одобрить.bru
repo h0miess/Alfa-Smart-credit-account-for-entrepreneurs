@@ -1,0 +1,26 @@
+meta {
+  name: Одобрить
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/v1/underwriter/applications/{{reviewId}}/decision
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{underwriterToken}}
+}
+
+body:json {
+  {
+    "action": "approve",
+    "comment": "Адрес проверен: офис по договору аренды"
+  }
+}
+
+assert {
+  res.status: eq 200
+}

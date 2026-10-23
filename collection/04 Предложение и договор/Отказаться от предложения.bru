@@ -1,0 +1,19 @@
+meta {
+  name: Отказаться от предложения
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/api/v1/applications/{{applicationId}}/offer/reject
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+docs {
+  Вместо принятия: заявка переходит в CANCELLED, после этого можно подать новую.
+}

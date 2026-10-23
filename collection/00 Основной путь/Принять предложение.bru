@@ -1,0 +1,20 @@
+meta {
+  name: Принять предложение
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/v1/applications/{{applicationId}}/offer/accept
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.status.code: eq ACCEPTED
+}
