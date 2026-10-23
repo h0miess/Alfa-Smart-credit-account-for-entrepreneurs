@@ -4,6 +4,7 @@ from core.configs.app import AppSettings
 from core.configs.auth import AuthSettings
 from core.configs.database import PostgresSettings, SQLEngineSettings
 from core.configs.redis import RedisSettings
+from core.configs.s3 import S3Settings
 from core.configs.seed import SeedSettings
 from core.configs.services import MocksSettings, ScoringSettings
 
@@ -23,6 +24,7 @@ class Settings(BaseSettings):
     seed: SeedSettings = SeedSettings()
     scoring: ScoringSettings = ScoringSettings()
     mocks: MocksSettings = MocksSettings()
+    s3: S3Settings = S3Settings()
 
 
 settings = Settings()

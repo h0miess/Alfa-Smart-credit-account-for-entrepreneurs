@@ -125,6 +125,15 @@ class LoanApplication:
             self.collateral_description = collateral_description
         self.updated_at = at
 
+    def provide_collateral(
+        self, *, value: Decimal, description: str, at: datetime
+    ) -> None:
+        if self.status is not ApplicationStatus.INFO_REQUESTED:
+            raise ConflictError("Сведения о залоге принимаются только по дозапросу")
+        self.collateral_value = value
+        self.collateral_description = description
+        self.updated_at = at
+
     def submit(self, *, actor_id: UUID, at: datetime) -> ApplicationEvent:
         event = self.transition_to(
             ApplicationStatus.SUBMITTED,

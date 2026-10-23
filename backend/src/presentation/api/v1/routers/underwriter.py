@@ -1,15 +1,17 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Body, Depends, Security
+from fastapi import APIRouter, Body, Depends, Response, Security
 from starlette import status
 
+from application.use_cases.client.documents import DownloadDocument
 from application.use_cases.underwriter.decide import DecideApplication
 from application.use_cases.underwriter.review import (
     GetReviewQueue,
     GetUnderwriterCard,
 )
 from core.dependencies.auth import get_current_user_id
+from core.dependencies.client import get_download_document
 from core.dependencies.underwriter import (
     get_decide,
     get_review_queue,
@@ -19,6 +21,7 @@ from domain.entities.user import UserRole
 from presentation.api.auth.bearer_scheme import bearer_scheme
 from presentation.api.auth.roles import require_role
 from presentation.api.exceptions.handlers import ExceptionSchema
+from presentation.api.v1.routers.documents import file_response
 from presentation.api.v1.schemas.underwriter import (
     QueueItemSchema,
     UnderwriterCardSchema,
@@ -68,3 +71,16 @@ async def decide(
 ) -> UnderwriterCardSchema:
     await use_case(user_id, application_id, to_command(body))
     return UnderwriterCardSchema.build(await card(application_id))
+
+
+@underwriter_router.get(
+    "/applications/{application_id}/documents/{document_id}/file",
+    operation_id="downloadDocumentForReview",
+    response_class=Response,
+)
+async def download_document(
+    application_id: UUID,
+    document_id: UUID,
+    use_case: Annotated[DownloadDocument, Depends(get_download_document)],
+) -> Response:
+    return file_response(await use_case.for_underwriter(application_id, document_id))

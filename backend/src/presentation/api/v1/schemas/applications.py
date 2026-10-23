@@ -279,7 +279,12 @@ def _labels(factors: Sequence[Mapping[str, Any]]) -> list[str]:
 
 
 def _requested(card: ApplicationCard) -> list[RequestedDocumentSchema]:
-    uploaded = {document.reason_code for document in card.documents}
+    requested_at = card.decision.at if card.decision else None
+    uploaded = {
+        document.reason_code
+        for document in card.documents
+        if requested_at is None or document.uploaded_at >= requested_at
+    }
     result = []
     for item in card.requested_documents:
         request = DOCUMENT_REQUESTS.get(item["reason_code"])
@@ -308,4 +313,17 @@ class StatusUpdateSchema:
             status=_status(update.status_view, update.eta_deadline),
             from_status=update.changed.from_status if update.changed else None,
             changed_at=update.changed.at if update.changed else None,
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class DocumentsSchema:
+    requested: list[RequestedDocumentSchema]
+    uploaded: list[DocumentSchema]
+
+    @classmethod
+    def build(cls, card: ApplicationCard) -> "DocumentsSchema":
+        return cls(
+            requested=_requested(card),
+            uploaded=[DocumentSchema.build(d) for d in card.documents],
         )

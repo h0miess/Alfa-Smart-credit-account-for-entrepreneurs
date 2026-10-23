@@ -25,7 +25,12 @@ from infra.postgres.database import create_sessionmaker
 from infra.postgres.mappings import start_mappers
 from infra.postgres.models import metadata
 from seed.loader import load_seed
-from tests.fakes import FakeAuthService, FakeScoringGateway, FakeTaskQueue
+from tests.fakes import (
+    FakeAuthService,
+    FakeDocumentStorage,
+    FakeScoringGateway,
+    FakeTaskQueue,
+)
 from tests.integration.pipeline import disburse, http_client, process  # noqa: F401
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
@@ -76,9 +81,15 @@ def task_queue() -> FakeTaskQueue:
 
 
 @pytest.fixture
+def storage() -> FakeDocumentStorage:
+    return FakeDocumentStorage()
+
+
+@pytest.fixture
 async def app(
     sessionmaker: async_sessionmaker[AsyncSession],
     task_queue: FakeTaskQueue,
+    storage: FakeDocumentStorage,
     postgres_url: str,
 ) -> AsyncIterator[FastAPI]:
     app = create_app()
@@ -86,6 +97,7 @@ async def app(
         app.state.sessionmaker = sessionmaker
         app.state.scoring = FakeScoringGateway()
         app.state.task_queue = task_queue
+        app.state.storage = storage
         app.state.events = PostgresEventListener(postgres_url.replace("+asyncpg", ""))
         yield app
         await app.state.events.stop()
