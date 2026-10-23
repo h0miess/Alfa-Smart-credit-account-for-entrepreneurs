@@ -12,6 +12,7 @@ from infra.http.sources import (
     HttpEgrulGateway,
     HttpFnsGateway,
 )
+from infra.notify.listener import PostgresEventListener
 from infra.postgres.database import create_engine, create_sessionmaker
 from infra.postgres.mappings import start_mappers
 from infra.tasks.broker import broker
@@ -34,7 +35,9 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     http_client = httpx.AsyncClient()
     app.state.scoring = HttpScoringGateway(http_client, settings.scoring)
     app.state.task_queue = TaskiqTaskQueue(broker)
+    app.state.events = PostgresEventListener(settings.postgres.dsn)
     yield
+    await app.state.events.stop()
     await http_client.aclose()
     await broker.shutdown()
     await engine.dispose()
