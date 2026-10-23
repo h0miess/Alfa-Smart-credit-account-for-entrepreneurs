@@ -3,6 +3,7 @@ from fastapi import Request
 from application.interfaces.clock import Clock
 from application.interfaces.events import ApplicationEventStream
 from application.interfaces.scoring import ScoringGateway
+from application.interfaces.storage import DocumentStorage
 from application.interfaces.tasks import TaskQueue
 from application.interfaces.uow import UnitOfWork
 from infra.clock import SystemClock
@@ -27,3 +28,7 @@ def get_task_queue(request: Request) -> TaskQueue:
 
 def get_events(request: Request) -> ApplicationEventStream:
     return request.app.state.events
+
+
+def get_storage(request: Request) -> DocumentStorage:
+    return request.app.state.storage

@@ -5,6 +5,7 @@ from fastapi import Depends
 from application.interfaces.clock import Clock
 from application.interfaces.events import ApplicationEventStream
 from application.interfaces.scoring import ScoringGateway
+from application.interfaces.storage import DocumentStorage
 from application.interfaces.tasks import TaskQueue
 from application.interfaces.uow import UnitOfWork
 from application.use_cases.client.applications import (
@@ -22,6 +23,12 @@ from application.use_cases.client.catalog import (
     ListProducts,
     RecommendProducts,
 )
+from application.use_cases.client.documents import (
+    CompleteDocuments,
+    DownloadDocument,
+    ListDocuments,
+    UploadDocument,
+)
 from application.use_cases.client.get_profile import GetProfile
 from application.use_cases.client.offer import (
     AcceptOffer,
@@ -35,6 +42,7 @@ from core.dependencies.common import (
     get_clock,
     get_events,
     get_scoring,
+    get_storage,
     get_task_queue,
     get_uow,
 )
@@ -43,6 +51,7 @@ Uow = Annotated[UnitOfWork, Depends(get_uow)]
 Scoring = Annotated[ScoringGateway, Depends(get_scoring)]
 ClockDep = Annotated[Clock, Depends(get_clock)]
 Tasks = Annotated[TaskQueue, Depends(get_task_queue)]
+Storage = Annotated[DocumentStorage, Depends(get_storage)]
 
 
 def get_profile_use_case(uow: Uow) -> GetProfile:
@@ -119,3 +128,21 @@ def get_watch(
     uow: Uow, events: Annotated[ApplicationEventStream, Depends(get_events)]
 ) -> WatchApplication:
     return WatchApplication(uow, events)
+
+
+def get_upload_document(uow: Uow, storage: Storage, clock: ClockDep) -> UploadDocument:
+    return UploadDocument(uow, storage, clock)
+
+
+def get_complete_documents(
+    uow: Uow, clock: ClockDep, tasks: Tasks
+) -> CompleteDocuments:
+    return CompleteDocuments(uow, clock, tasks)
+
+
+def get_list_documents(uow: Uow) -> ListDocuments:
+    return ListDocuments(uow)
+
+
+def get_download_document(uow: Uow, storage: Storage) -> DownloadDocument:
+    return DownloadDocument(uow, storage)

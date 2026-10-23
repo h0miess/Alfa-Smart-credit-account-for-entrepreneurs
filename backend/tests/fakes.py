@@ -1,9 +1,11 @@
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from decimal import Decimal
+from typing import Any
 from uuid import UUID
 
 from application.interfaces.auth import AuthService, UserInfo
-from application.interfaces.scoring import ModelInfo, ScoringGateway
+from application.interfaces.scoring import ModelInfo, ScoringGateway, ScoringResult
+from application.interfaces.storage import DocumentStorage
 from application.interfaces.tasks import TaskQueue
 from domain.entities.user import UserRole
 from domain.products import Product, ProductCode
@@ -43,6 +45,9 @@ ML_PRODUCTS = (
 
 
 class FakeScoringGateway(ScoringGateway):
+    async def decide(self, request: Mapping[str, Any]) -> ScoringResult:
+        raise NotImplementedError
+
     async def get_products(self) -> Sequence[Product]:
         return ML_PRODUCTS
 
@@ -85,3 +90,14 @@ class FakeAuthService(AuthService):
             last_name=None,
             email="test@example.com",
         )
+
+
+class FakeDocumentStorage(DocumentStorage):
+    def __init__(self) -> None:
+        self.files: dict[str, tuple[bytes, str]] = {}
+
+    async def put(self, key: str, data: bytes, content_type: str) -> None:
+        self.files[key] = (data, content_type)
+
+    async def get(self, key: str) -> bytes:
+        return self.files[key][0]

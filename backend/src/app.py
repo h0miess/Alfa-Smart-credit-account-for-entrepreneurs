@@ -15,6 +15,7 @@ from infra.http.sources import (
 from infra.notify.listener import PostgresEventListener
 from infra.postgres.database import create_engine, create_sessionmaker
 from infra.postgres.mappings import start_mappers
+from infra.s3.storage import S3DocumentStorage
 from infra.tasks.broker import broker
 from infra.tasks.queue import TaskiqTaskQueue
 from presentation.api.auth.token import PyJWKClientCache
@@ -36,6 +37,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.scoring = HttpScoringGateway(http_client, settings.scoring)
     app.state.task_queue = TaskiqTaskQueue(broker)
     app.state.events = PostgresEventListener(settings.postgres.dsn)
+    app.state.storage = S3DocumentStorage(settings.s3)
     yield
     await app.state.events.stop()
     await http_client.aclose()

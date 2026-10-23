@@ -7,6 +7,7 @@ authors = [
 ]
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    "aioboto3>=15.0,<16",
     "alembic>=1.20,<2",
     "asyncpg>=0.30,<1",
     "fastapi>=0.115,<1",
@@ -14,6 +15,7 @@ dependencies = [
     "jinja2>=3.1,<4",
     "pydantic-settings>=2.6,<3",
     "pyjwt[crypto]>=2.10,<3",
+    "python-multipart>=0.0.20,<1",
     "sqlalchemy[asyncio]>=2.0,<3",
     "taskiq>=0.13,<1",
     "taskiq-fastapi>=0.5,<1",
