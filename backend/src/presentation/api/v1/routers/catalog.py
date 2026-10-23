@@ -13,8 +13,10 @@ from core.dependencies.client import (
     get_list_products,
     get_recommend_products,
 )
+from domain.entities.user import UserRole
 from domain.statuses import STATUS_VIEW
 from presentation.api.auth.bearer_scheme import bearer_scheme
+from presentation.api.auth.roles import require_role
 from presentation.api.exceptions.handlers import ExceptionSchema
 from presentation.api.v1.schemas.catalog import (
     PURPOSES,
@@ -27,7 +29,12 @@ from presentation.api.v1.schemas.catalog import (
     StatusViewSchema,
 )
 
-catalog_router = APIRouter(dependencies=[Security(bearer_scheme)])
+catalog_router = APIRouter(
+    dependencies=[
+        Security(bearer_scheme),
+        require_role(UserRole.CLIENT, UserRole.UNDERWRITER),
+    ]
+)
 
 _ERRORS: dict[int | str, dict[str, Any]] = {
     status.HTTP_401_UNAUTHORIZED: {"model": ExceptionSchema},
