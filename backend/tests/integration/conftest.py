@@ -20,6 +20,7 @@ from app import create_app
 from core.configs import settings
 from core.dependencies.auth import get_auth_service
 from domain.entities.user import UserRole
+from infra.notify.listener import PostgresEventListener
 from infra.postgres.database import create_sessionmaker
 from infra.postgres.mappings import start_mappers
 from infra.postgres.models import metadata
@@ -78,13 +79,16 @@ def task_queue() -> FakeTaskQueue:
 async def app(
     sessionmaker: async_sessionmaker[AsyncSession],
     task_queue: FakeTaskQueue,
+    postgres_url: str,
 ) -> AsyncIterator[FastAPI]:
     app = create_app()
     async with app.router.lifespan_context(app):
         app.state.sessionmaker = sessionmaker
         app.state.scoring = FakeScoringGateway()
         app.state.task_queue = task_queue
+        app.state.events = PostgresEventListener(postgres_url.replace("+asyncpg", ""))
         yield app
+        await app.state.events.stop()
 
 
 @pytest.fixture

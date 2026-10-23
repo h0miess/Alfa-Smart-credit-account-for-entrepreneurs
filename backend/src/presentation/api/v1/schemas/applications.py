@@ -8,6 +8,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
 from application.use_cases.client.card import ApplicationCard, ApplicationSummary
+from application.use_cases.client.watch import StatusUpdate
 from domain.entities.application_event import ActorType, ApplicationEvent
 from domain.entities.contract import Contract
 from domain.entities.decision import Decision
@@ -291,3 +292,20 @@ def _requested(card: ApplicationCard) -> list[RequestedDocumentSchema]:
             )
         )
     return result
+
+
+@dataclass(frozen=True, slots=True)
+class StatusUpdateSchema:
+    application_id: UUID
+    status: StatusSchema
+    from_status: ApplicationStatus | None
+    changed_at: datetime | None
+
+    @classmethod
+    def build(cls, update: StatusUpdate) -> "StatusUpdateSchema":
+        return cls(
+            application_id=update.application_id,
+            status=_status(update.status_view, update.eta_deadline),
+            from_status=update.changed.from_status if update.changed else None,
+            changed_at=update.changed.at if update.changed else None,
+        )

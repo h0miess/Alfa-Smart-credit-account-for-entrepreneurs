@@ -20,6 +20,12 @@ class PostgresSettings(BaseModel):
             database=self.DB,
         )
 
+    @property
+    def dsn(self) -> str:
+        return self.url.set(drivername="postgresql").render_as_string(
+            hide_password=False
+        )
+
 
 class SQLEngineSettings(BaseModel):
     ECHO: bool = False

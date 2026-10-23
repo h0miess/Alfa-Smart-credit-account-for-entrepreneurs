@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import Depends
 
 from application.interfaces.clock import Clock
+from application.interfaces.events import ApplicationEventStream
 from application.interfaces.scoring import ScoringGateway
 from application.interfaces.tasks import TaskQueue
 from application.interfaces.uow import UnitOfWork
@@ -29,7 +30,14 @@ from application.use_cases.client.offer import (
     RequestSignCode,
     SignContract,
 )
-from core.dependencies.common import get_clock, get_scoring, get_task_queue, get_uow
+from application.use_cases.client.watch import WatchApplication
+from core.dependencies.common import (
+    get_clock,
+    get_events,
+    get_scoring,
+    get_task_queue,
+    get_uow,
+)
 
 Uow = Annotated[UnitOfWork, Depends(get_uow)]
 Scoring = Annotated[ScoringGateway, Depends(get_scoring)]
@@ -105,3 +113,9 @@ def get_request_sign_code(uow: Uow, clock: ClockDep) -> RequestSignCode:
 
 def get_sign_contract(uow: Uow, clock: ClockDep, tasks: Tasks) -> SignContract:
     return SignContract(uow, clock, tasks)
+
+
+def get_watch(
+    uow: Uow, events: Annotated[ApplicationEventStream, Depends(get_events)]
+) -> WatchApplication:
+    return WatchApplication(uow, events)
