@@ -78,9 +78,10 @@ async def http_client() -> AsyncIterator[httpx.AsyncClient]:
         yield client
 
 
-@pytest.fixture
-def process(
-    sessionmaker: async_sessionmaker[AsyncSession], http_client: httpx.AsyncClient
+def build_process(
+    sessionmaker: async_sessionmaker[AsyncSession],
+    http_client: httpx.AsyncClient,
+    **options: Any,
 ) -> ProcessApplication:
     mocks = MocksSettings(URL=MOCKS, ATTEMPTS=1)
     return ProcessApplication(
@@ -93,7 +94,15 @@ def process(
             abs=HttpAbsGateway(http_client, mocks),
         ),
         scoring=HttpScoringGateway(http_client, ScoringSettings(URL=ML, ATTEMPTS=1)),
+        **options,
     )
+
+
+@pytest.fixture
+def process(
+    sessionmaker: async_sessionmaker[AsyncSession], http_client: httpx.AsyncClient
+) -> ProcessApplication:
+    return build_process(sessionmaker, http_client)
 
 
 def route_mocks(router: respx.MockRouter, inn: str) -> None:

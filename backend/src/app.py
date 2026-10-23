@@ -5,6 +5,7 @@ import httpx
 from fastapi import FastAPI
 
 from core.configs import settings
+from core.logging import configure_logging
 from infra.http.scoring import HttpScoringGateway
 from infra.http.sources import (
     HttpAbsGateway,
@@ -21,6 +22,7 @@ from infra.tasks.queue import TaskiqTaskQueue
 from presentation.api.auth.token import PyJWKClientCache
 from presentation.api.exceptions.handlers import setup_handlers
 from presentation.api.health import health_router
+from presentation.api.middleware import RequestIdMiddleware
 from presentation.api.v1.routers import api_v1_router
 
 VERSION = "0.1.0"
@@ -34,6 +36,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # ключи Keycloak кэшируются на всё приложение
     app.state.jwk_client = PyJWKClientCache(settings.auth)
     http_client = httpx.AsyncClient()
+    app.state.http_client = http_client
     app.state.scoring = HttpScoringGateway(http_client, settings.scoring)
     app.state.task_queue = TaskiqTaskQueue(broker)
     app.state.events = PostgresEventListener(settings.postgres.dsn)
@@ -61,6 +64,7 @@ def create_app() -> FastAPI:
         },
     )
 
+    app.add_middleware(RequestIdMiddleware)
     app.include_router(health_router)
     app.include_router(api_v1_router)
 
@@ -86,5 +90,6 @@ async def worker_lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 def create_worker_app() -> FastAPI:
+    configure_logging()
     start_mappers()
     return FastAPI(lifespan=worker_lifespan)

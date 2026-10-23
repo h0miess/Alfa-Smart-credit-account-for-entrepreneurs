@@ -1,11 +1,13 @@
 from uuid import UUID
 
 import httpx
-import pytest
 import respx
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from application.use_cases.processing.process_application import ProcessApplication
+from application.use_cases.processing.process_application import (
+    ProcessApplication,
+    RetryPolicy,
+)
 from domain.entities.enrichment_snapshot import EnrichmentSource
 from domain.entities.user import UserRole
 from infra.postgres.uow import SqlAlchemyUnitOfWork
@@ -13,6 +15,7 @@ from tests.integration.pipeline import (
     ML,
     MOCKS,
     Login,
+    build_process,
     ml_response,
     route_mocks,
     submitted,
@@ -110,20 +113,31 @@ async def test_request_info_lists_documents(
     ]
 
 
-async def test_source_failure_keeps_application_checking(
+async def test_source_failure_keeps_checking_while_retrying(
     client: httpx.AsyncClient,
     login: Login,
-    process: ProcessApplication,
+    sessionmaker: async_sessionmaker[AsyncSession],
+    http_client: httpx.AsyncClient,
 ) -> None:
     login(IP_IVANOV, UserRole.CLIENT)
     application_id = await submitted(client)
+    seen_while_waiting: list[str] = []
 
+    async def check_status(_: float) -> None:
+        card = (await client.get(f"/api/v1/applications/{application_id}")).json()
+        seen_while_waiting.append(card["status"]["code"])
+
+    process = build_process(
+        sessionmaker,
+        http_client,
+        retry=RetryPolicy(attempts=2, first_delay_in_seconds=0),
+        sleep=check_status,
+    )
     with respx.mock() as router:
         route_mocks(router, "772814539067")
         router.get(f"{MOCKS}/bki/772814539067/report").respond(503)
-        with pytest.raises(Exception, match="БКИ"):
-            await process(UUID(application_id))
+        await process(UUID(application_id))
 
+    assert seen_while_waiting == ["CHECKING"]
     card = (await client.get(f"/api/v1/applications/{application_id}")).json()
-    assert card["status"]["code"] == "CHECKING"
-    assert card["decision"] is None
+    assert card["status"]["code"] == "MANUAL_REVIEW"
