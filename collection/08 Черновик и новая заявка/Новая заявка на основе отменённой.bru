@@ -1,0 +1,23 @@
+meta {
+  name: Новая заявка на основе отменённой
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/v1/applications/{{draftId}}/copy
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+vars:post-response {
+  draftId: res.body.id
+}
+
+assert {
+  res.status: eq 201
+}

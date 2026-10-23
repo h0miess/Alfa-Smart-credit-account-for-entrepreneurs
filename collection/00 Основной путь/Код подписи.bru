@@ -1,0 +1,23 @@
+meta {
+  name: Код подписи
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/api/v1/applications/{{applicationId}}/contract/sign-code
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+vars:post-response {
+  signCode: res.body.code
+}
+
+assert {
+  res.status: eq 200
+}

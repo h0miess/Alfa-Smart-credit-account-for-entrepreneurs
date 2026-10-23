@@ -1,0 +1,25 @@
+meta {
+  name: Включить отказ БКИ
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{mocksUrl}}/admin/failures/bki
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "mode": "error"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  Режимы: off, error, timeout. Источники: egrul, fns, bki, abs, all.
+}

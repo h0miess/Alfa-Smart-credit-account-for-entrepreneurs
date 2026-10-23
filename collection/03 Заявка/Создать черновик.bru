@@ -1,0 +1,37 @@
+meta {
+  name: Создать черновик
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/v1/applications
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+body:json {
+  {
+    "product": "express",
+    "requested_amount": 1500000,
+    "term_months": 12,
+    "purpose": "working_capital",
+    "collateral_value": 0
+  }
+}
+
+vars:post-response {
+  applicationId: res.body.id
+}
+
+assert {
+  res.status: eq 201
+}
+
+docs {
+  Данные компании не передаются: они берутся из профиля клиента банка.
+}

@@ -1,0 +1,20 @@
+meta {
+  name: Договор = предложение
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/v1/applications/{{applicationId}}/contract
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.matches_offer: eq true
+}

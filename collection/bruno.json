@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Умный кредитный кабинет",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

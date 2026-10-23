@@ -1,0 +1,19 @@
+meta {
+  name: Что запрошено и загружено
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/applications/{{applicationId}}/documents
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+assert {
+  res.status: eq 200
+}

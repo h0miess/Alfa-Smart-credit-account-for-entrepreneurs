@@ -1,0 +1,28 @@
+meta {
+  name: Изменить условия
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/v1/underwriter/applications/{{reviewId}}/decision
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{underwriterToken}}
+}
+
+body:json {
+  {
+    "action": "change_terms",
+    "amount": 1500000,
+    "term_months": 18,
+    "comment": "Снижаем сумму из-за сезонности оборотов"
+  }
+}
+
+assert {
+  res.status: eq 200
+}

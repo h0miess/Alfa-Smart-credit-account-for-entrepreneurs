@@ -1,0 +1,19 @@
+meta {
+  name: Договор (HTML)
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/v1/applications/{{applicationId}}/contract/document
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+assert {
+  res.status: eq 200
+}

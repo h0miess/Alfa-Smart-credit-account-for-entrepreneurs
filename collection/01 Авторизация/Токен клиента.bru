@@ -1,0 +1,27 @@
+meta {
+  name: Токен клиента
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{keycloakUrl}}/realms/alfa-credit/protocol/openid-connect/token
+  body: formUrlEncoded
+  auth: none
+}
+
+body:form-urlencoded {
+  client_id: credit-cabinet-web
+  grant_type: password
+  username: {{clientUsername}}
+  password: {{password}}
+  scope: openid
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:post-response {
+  bru.setVar("clientToken", res.body.access_token);
+}

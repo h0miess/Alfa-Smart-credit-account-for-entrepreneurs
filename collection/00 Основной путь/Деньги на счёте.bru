@@ -1,0 +1,24 @@
+meta {
+  name: Деньги на счёте
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/api/v1/applications/{{applicationId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.status.code: eq ISSUED
+}
+
+script:pre-request {
+  await new Promise((resolve) => setTimeout(resolve, 4000));
+}

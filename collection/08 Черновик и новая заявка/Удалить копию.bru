@@ -1,0 +1,19 @@
+meta {
+  name: Удалить копию
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/api/v1/applications/{{draftId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+assert {
+  res.status: eq 200
+}

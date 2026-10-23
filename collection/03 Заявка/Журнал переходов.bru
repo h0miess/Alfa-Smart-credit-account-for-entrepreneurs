@@ -1,0 +1,19 @@
+meta {
+  name: Журнал переходов
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/v1/applications/{{applicationId}}/events
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+assert {
+  res.status: eq 200
+}

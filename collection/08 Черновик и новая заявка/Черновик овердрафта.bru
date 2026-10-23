@@ -1,0 +1,32 @@
+meta {
+  name: Черновик овердрафта
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/v1/applications
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+body:json {
+  {
+    "product": "overdraft",
+    "requested_amount": 500000,
+    "term_months": 12,
+    "purpose": "cash_gap"
+  }
+}
+
+vars:post-response {
+  draftId: res.body.id
+}
+
+assert {
+  res.status: eq 201
+}

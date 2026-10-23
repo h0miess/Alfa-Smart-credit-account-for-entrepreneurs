@@ -1,0 +1,27 @@
+meta {
+  name: Отправить
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/v1/applications/{{applicationId}}/submit
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+body:json {
+  {
+    "consent_bki": true,
+    "consent_pd": true
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.status.code: eq SUBMITTED
+}

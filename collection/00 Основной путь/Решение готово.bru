@@ -1,0 +1,25 @@
+meta {
+  name: Решение готово
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/v1/applications/{{applicationId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{clientToken}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.status.code: eq OFFERED
+  res.body.offer.note: eq Подключение других продуктов банка не требуется
+}
+
+script:pre-request {
+  await new Promise((resolve) => setTimeout(resolve, 4000));
+}
