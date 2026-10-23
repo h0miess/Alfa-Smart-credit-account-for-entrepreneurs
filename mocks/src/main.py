@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 
+import failures
 from routes import router
 
 app = FastAPI(
@@ -9,6 +10,7 @@ app = FastAPI(
 )
 
 app.include_router(router)
+app.include_router(failures.router)
 
 
 @app.get("/health")

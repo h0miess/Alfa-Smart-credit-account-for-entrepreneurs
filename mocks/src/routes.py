@@ -6,6 +6,7 @@ from uuid import UUID, uuid4
 from fastapi import APIRouter, Header, HTTPException, status
 from pydantic import BaseModel, Field
 
+from failures import Source, simulate
 from registry import find_company, months_since
 
 router = APIRouter()
@@ -19,6 +20,7 @@ def _now() -> str:
 
 @router.get("/egrul/{inn}", tags=["ЕГРЮЛ/ЕГРИП"])
 async def egrul_extract(inn: str) -> dict[str, Any]:
+    await simulate(Source.EGRUL)
     company = find_company(inn)
     return {
         "inn": company.inn,
@@ -32,18 +34,21 @@ async def egrul_extract(inn: str) -> dict[str, Any]:
 
 @router.get("/fns/{inn}/arrears", tags=["ФНС"])
 async def fns_arrears(inn: str) -> dict[str, Any]:
+    await simulate(Source.FNS)
     company = find_company(inn)
     return {"inn": company.inn, **company.sources["fns"], "checked_at": _now()}
 
 
 @router.get("/bki/{inn}/report", tags=["БКИ"])
 async def bki_report(inn: str) -> dict[str, Any]:
+    await simulate(Source.BKI)
     company = find_company(inn)
     return {"inn": company.inn, **company.sources["bki"], "report_date": _now()}
 
 
 @router.get("/abs/{inn}/statement", tags=["АБС"])
 async def abs_statement(inn: str) -> dict[str, Any]:
+    await simulate(Source.ABS)
     company = find_company(inn)
     return {
         "inn": company.inn,
@@ -66,6 +71,7 @@ async def abs_disburse(
     body: DisbursementIn,
     idempotency_key: Annotated[str, Header(alias="Idempotency-Key")],
 ) -> dict[str, Any]:
+    await simulate(Source.ABS)
     known = _disbursements.get(idempotency_key)
     if known is not None:
         if known["contract_id"] != str(body.contract_id):
